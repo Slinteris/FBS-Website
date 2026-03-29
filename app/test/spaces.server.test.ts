@@ -120,4 +120,12 @@ describe("getPresignedUrl", () => {
       { expiresIn: 3600 }
     );
   });
+
+  it("forwards the key to GetObjectCommand", async () => {
+    const { GetObjectCommand } = await import("@aws-sdk/client-s3");
+    await getPresignedUrl("uploads/123-test.pdf");
+    expect(GetObjectCommand).toHaveBeenCalledWith(
+      expect.objectContaining({ Key: "uploads/123-test.pdf" })
+    );
+  });
 });
