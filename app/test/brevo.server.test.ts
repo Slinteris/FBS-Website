@@ -1,15 +1,13 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
-// Mock the Brevo SDK before importing the module under test
-vi.mock("@getbrevo/brevo", () => {
-  const sendTransacEmail = vi.fn().mockResolvedValue({ response: { statusCode: 201 } });
-  const setApiKey = vi.fn();
-  return {
-    TransactionalEmailsApi: vi.fn().mockImplementation(() => ({ setApiKey, sendTransacEmail })),
-    TransactionalEmailsApiApiKeys: { apiKey: "apiKey" },
-    SendSmtpEmail: vi.fn().mockImplementation((data) => data),
-  };
-});
+const sendTransacEmail = vi.fn().mockResolvedValue({ response: { statusCode: 201 } });
+const setApiKey = vi.fn();
+
+vi.mock("@getbrevo/brevo", () => ({
+  TransactionalEmailsApi: vi.fn().mockImplementation(() => ({ setApiKey, sendTransacEmail })),
+  TransactionalEmailsApiApiKeys: { apiKey: "apiKey" },
+  SendSmtpEmail: vi.fn().mockImplementation((data: object) => ({ ...data })),
+}));
 
 import { sendEmail } from "~/lib/brevo.server";
 
@@ -18,22 +16,54 @@ describe("sendEmail", () => {
     process.env.BREVO_API_KEY = "test-key";
     process.env.NOTIFICATION_EMAIL = "team@fbsinsurance.com";
     vi.clearAllMocks();
+    sendTransacEmail.mockResolvedValue({ response: { statusCode: 201 } });
+  });
+
+  afterEach(() => {
+    delete process.env.BREVO_API_KEY;
+    delete process.env.NOTIFICATION_EMAIL;
   });
 
   it("sends an email with subject and htmlContent", async () => {
-    const { TransactionalEmailsApi } = await import("@getbrevo/brevo");
-    const mockInstance = new (TransactionalEmailsApi as any)();
-
     await sendEmail({
       subject: "New contact form submission",
       htmlContent: "<p>Hello</p>",
     });
 
-    expect(mockInstance.sendTransacEmail).toHaveBeenCalledWith(
+    expect(sendTransacEmail).toHaveBeenCalledOnce();
+    expect(sendTransacEmail).toHaveBeenCalledWith(
       expect.objectContaining({
         subject: "New contact form submission",
         htmlContent: "<p>Hello</p>",
         to: [{ email: "team@fbsinsurance.com" }],
+        sender: { name: "FBS Website", email: "noreply@fbsinsurance.com" },
+      })
+    );
+  });
+
+  it("appends attachment names to htmlContent when provided", async () => {
+    await sendEmail({
+      subject: "Quote request",
+      htmlContent: "<p>Quote details</p>",
+      attachmentNames: ["census.pdf", "current-plan.xlsx"],
+    });
+
+    expect(sendTransacEmail).toHaveBeenCalledOnce();
+    const callArg = sendTransacEmail.mock.calls[0][0] as { htmlContent: string };
+    expect(callArg.htmlContent).toContain("census.pdf");
+    expect(callArg.htmlContent).toContain("current-plan.xlsx");
+  });
+
+  it("sets replyTo when provided", async () => {
+    await sendEmail({
+      subject: "Test",
+      htmlContent: "<p>Test</p>",
+      replyTo: { email: "user@example.com", name: "Test User" },
+    });
+
+    expect(sendTransacEmail).toHaveBeenCalledWith(
+      expect.objectContaining({
+        replyTo: { email: "user@example.com", name: "Test User" },
       })
     );
   });
