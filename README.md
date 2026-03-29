@@ -28,7 +28,7 @@ Website for **Flexible Benefit Solutions Insurance Brokerage, Inc.** — a Massa
 
 ```bash
 cp .env.example .env   # fill in required values
-nvm use                # Node 22 (requires nvm)
+nvm use                # Node 24 (requires nvm)
 npm install
 npm run dev            # http://localhost:3000
 ```

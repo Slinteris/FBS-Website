@@ -21,7 +21,7 @@ npx vitest run app/test/brevo.server.test.ts
 
 ## Architecture
 
-**Stack:** React 19, React Router v7 (SSR), TypeScript, Tailwind CSS, shadcn/ui, Vite, Node.js 22.
+**Stack:** React 19, React Router v7 (SSR), TypeScript, Tailwind CSS, shadcn/ui, Vite, Node.js 24.
 
 This is a single full-stack app — not a monorepo. Server and client code coexist in `app/`.
 
