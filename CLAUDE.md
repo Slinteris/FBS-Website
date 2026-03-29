@@ -51,7 +51,7 @@ Form submissions use React Router's `action()` / `loader()` pattern. Client form
 
 - `app/lib/utils.ts` — `cn()` (Tailwind class merging) and `escapeHtml()` (sanitize user input before email HTML)
 - `app/lib/generateCobraLetterPdf.ts` / `generateIntakePdf.ts` — client-side PDF generation with jsPDF
-- `app/components/ui/` — 30+ shadcn/ui Radix primitive components
+- `app/components/ui/` — 16 shadcn/ui Radix primitive components
 
 ## Environment Variables
 
