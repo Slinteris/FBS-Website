@@ -46,6 +46,10 @@ jobs:
             chmod 700 /home/deploy/.ssh
             chmod 600 /home/deploy/.ssh/authorized_keys
 
+            # Let nginx (www-data) traverse into deploy's home and read build assets
+            usermod -aG deploy www-data
+            chmod 750 /home/deploy
+
             # Allow deploy user to reload nginx without password
             cat > /etc/sudoers.d/deploy <<'SUDOERS'
             deploy ALL=(ALL) NOPASSWD: /bin/systemctl reload nginx, /bin/systemctl restart nginx, /usr/sbin/nginx
