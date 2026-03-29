@@ -54,10 +54,6 @@ const LoginCard = ({
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-  };
-
   return (
     <div className="flex flex-col">
       <Card className="border-2 flex-1">
@@ -74,7 +70,7 @@ const LoginCard = ({
             </h2>
           </div>
 
-          <form onSubmit={handleLogin} className="space-y-3">
+          <form className="space-y-3">
             <div>
               <label className="mb-1 block text-sm font-medium text-foreground">
                 Email / Username
@@ -108,8 +104,8 @@ const LoginCard = ({
                 Forgot password?
               </a>
             </div>
-            <Button type="submit" className="w-full gap-2" size="lg">
-              <LogIn className="h-4 w-4" /> Sign In
+            <Button type="button" className="w-full" disabled>
+              Login — Coming Soon
             </Button>
           </form>
 
