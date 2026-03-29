@@ -13,6 +13,17 @@ import { sendEmail } from "~/lib/brevo.server";
 
 export const meta: MetaFunction = () => [{ title: "Secure Document Upload — FBS" }];
 
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+const MAX_BYTES = 10 * 1024 * 1024; // 10 MB
+
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
 
@@ -30,29 +41,37 @@ export async function action({ request }: ActionFunctionArgs) {
     return { success: false, error: "Please upload at least one document." };
   }
 
-  // Upload each file to DO Spaces and collect presigned URLs
-  const uploadedLinks: string[] = [];
-  for (const file of documents) {
-    if (file.size === 0) continue;
-    const buffer = Buffer.from(await file.arrayBuffer());
-    const key = await uploadFile({ buffer, fileName: file.name, mimeType: file.type || "application/octet-stream" });
-    const url = await getPresignedUrl(key);
-    uploadedLinks.push(`<li><a href="${url}">${file.name}</a> (link valid 7 days)</li>`);
-  }
+  try {
+    // Upload each file to DO Spaces and collect presigned URLs
+    const uploadedLinks: string[] = [];
+    for (const file of documents) {
+      if (file.size === 0) continue;
+      if (file.size > MAX_BYTES) {
+        return { success: false, error: `File "${escapeHtml(file.name)}" exceeds the 10 MB limit.` };
+      }
+      const buffer = Buffer.from(await file.arrayBuffer());
+      const key = await uploadFile({ buffer, fileName: file.name, mimeType: file.type || "application/octet-stream" });
+      const url = await getPresignedUrl(key);
+      uploadedLinks.push(`<li><a href="${url}">${escapeHtml(file.name)}</a> (link valid 7 days)</li>`);
+    }
 
-  await sendEmail({
-    subject: `Document upload from ${firstName} ${lastName} — ${company}`,
-    htmlContent: `
-      <h2>Secure Document Upload</h2>
-      <p><strong>Name:</strong> ${firstName} ${lastName}</p>
-      <p><strong>Company:</strong> ${company}</p>
-      <p><strong>Email:</strong> ${email}</p>
-      ${message ? `<p><strong>Message:</strong><br>${message}</p>` : ""}
-      <p><strong>Documents:</strong></p>
-      <ul>${uploadedLinks.join("")}</ul>
-    `,
-    replyTo: { email, name: `${firstName} ${lastName}` },
-  });
+    await sendEmail({
+      subject: `Document upload from ${firstName} ${lastName} — ${company}`,
+      htmlContent: `
+        <h2>Secure Document Upload</h2>
+        <p><strong>Name:</strong> ${escapeHtml(firstName)} ${escapeHtml(lastName)}</p>
+        <p><strong>Company:</strong> ${escapeHtml(company)}</p>
+        <p><strong>Email:</strong> ${escapeHtml(email)}</p>
+        ${message ? `<p><strong>Message:</strong><br>${escapeHtml(message)}</p>` : ""}
+        <p><strong>Documents:</strong></p>
+        <ul>${uploadedLinks.join("")}</ul>
+      `,
+      replyTo: { email, name: `${firstName} ${lastName}` },
+    });
+  } catch (err) {
+    console.error("Upload action failed:", err);
+    return { success: false, error: "Something went wrong. Please try again or contact us directly." };
+  }
 
   return { success: true };
 }
@@ -64,7 +83,6 @@ const UploadDocuments = () => {
 
   const [files, setFiles] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
     if (actionData?.success) setFiles([]);
@@ -116,7 +134,6 @@ const UploadDocuments = () => {
         <Card className="border-border/50">
           <CardContent className="p-6 sm:p-8">
             <Form
-              ref={formRef}
               method="post"
               encType="multipart/form-data"
               className="space-y-6"
