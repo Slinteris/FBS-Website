@@ -26,9 +26,11 @@ export async function sendEmail({ subject, htmlContent, replyTo, attachmentNames
       ? { email: replyTo }
       : replyTo;
 
+  const recipients = notificationEmail.split(",").map((e) => ({ email: e.trim() }));
+
   await client.transactionalEmails.sendTransacEmail({
     sender: { name: "FBS Website", email: "noreply@fbsinsurance.com" },
-    to: [{ email: notificationEmail }],
+    to: recipients,
     subject,
     htmlContent: finalHtml,
     ...(replyToObj ? { replyTo: replyToObj } : {}),
