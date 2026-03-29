@@ -34,8 +34,7 @@ export function QuoteDialog({ trigger }: QuoteDialogProps) {
     const formData = new FormData(e.currentTarget);
     fetcher.submit(formData, {
       method: "post",
-      action: "/",
-      encType: "multipart/form-data",
+      action: "/api/quote",
     });
   };
 
@@ -53,7 +52,6 @@ export function QuoteDialog({ trigger }: QuoteDialogProps) {
         </DialogHeader>
 
         <form ref={formRef} onSubmit={handleSubmit} className="mt-4 space-y-4">
-          <input type="hidden" name="intent" value="quote" />
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">

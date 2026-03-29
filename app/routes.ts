@@ -8,5 +8,6 @@ export default [
   route("cobra-letter", "routes/cobra-letter.tsx"),
   route("upload", "routes/upload.tsx"),
   route("affiliate", "routes/affiliate.tsx"),
+  route("api/quote", "routes/api.quote.ts"),
   route("*", "routes/$.tsx"),
 ] satisfies RouteConfig;
