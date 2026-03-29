@@ -38,8 +38,44 @@ import sunlifeLogo from "~/assets/sunlife-logo.png";
 
 import heroBg from "~/assets/hero-bg.jpg";
 import salHeadshot from "~/assets/sal-headshot.jpeg";
-import { Link } from "react-router";
-import type { MetaFunction } from "react-router";
+import { Form, Link, useActionData, useNavigation } from "react-router";
+import type { ActionFunctionArgs, MetaFunction } from "react-router";
+import { sendEmail } from "~/lib/brevo.server";
+
+export async function action({ request }: ActionFunctionArgs) {
+  const formData = await request.formData();
+  const intent = formData.get("intent");
+
+  if (intent !== "contact") {
+    return { success: false, error: "Unknown form intent." };
+  }
+
+  const firstName = String(formData.get("firstName") ?? "").trim();
+  const lastName = String(formData.get("lastName") ?? "").trim();
+  const company = String(formData.get("company") ?? "").trim();
+  const email = String(formData.get("email") ?? "").trim();
+  const phone = String(formData.get("phone") ?? "").trim();
+  const message = String(formData.get("message") ?? "").trim();
+
+  if (!firstName || !email) {
+    return { success: false, error: "Name and email are required." };
+  }
+
+  await sendEmail({
+    subject: `New consultation request from ${firstName} ${lastName}`,
+    htmlContent: `
+      <h2>New Consultation Request</h2>
+      <p><strong>Name:</strong> ${firstName} ${lastName}</p>
+      <p><strong>Company:</strong> ${company || "—"}</p>
+      <p><strong>Email:</strong> ${email}</p>
+      <p><strong>Phone:</strong> ${phone || "—"}</p>
+      <p><strong>Message:</strong><br>${message || "—"}</p>
+    `,
+    replyTo: { email, name: `${firstName} ${lastName}` },
+  });
+
+  return { success: true, intent: "contact" };
+}
 
 export const meta: MetaFunction = () => [
   { title: "Flexible Benefit Solutions Insurance Brokerage" },
@@ -90,6 +126,11 @@ const reasons = [
 ];
 
 const Index = () => {
+  const actionData = useActionData<typeof action>();
+  const navigation = useNavigation();
+  const isSubmitting = navigation.state === "submitting" &&
+    navigation.formData?.get("intent") === "contact";
+
   return (
     <div className="min-h-screen bg-background">
       {/* Hero */}
@@ -487,7 +528,8 @@ const Index = () => {
                 <h3 className="mb-6 text-xl font-bold text-foreground" style={{ fontFamily: "'DM Sans', sans-serif" }}>
                   Request a Free Consultation
                 </h3>
-                <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+                <Form method="post" className="space-y-4">
+                  <input type="hidden" name="intent" value="contact" />
                   <div className="grid gap-4 sm:grid-cols-2">
                     <input
                       name="firstName"
@@ -523,10 +565,20 @@ const Index = () => {
                     rows={4}
                     className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   />
-                  <Button className="w-full" size="lg">
-                    Submit Request
+
+                  {actionData?.success && actionData.intent === "contact" && (
+                    <p className="text-sm font-medium text-accent">
+                      Thank you! We'll be in touch shortly.
+                    </p>
+                  )}
+                  {actionData?.error && (
+                    <p className="text-sm font-medium text-destructive">{actionData.error}</p>
+                  )}
+
+                  <Button className="w-full" size="lg" type="submit" disabled={isSubmitting}>
+                    {isSubmitting ? "Sending…" : "Submit Request"}
                   </Button>
-                </form>
+                </Form>
               </CardContent>
             </Card>
           </div>
