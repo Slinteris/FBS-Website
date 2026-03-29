@@ -10,7 +10,6 @@ import { FileDown } from "lucide-react";
 import { Link } from "react-router";
 import type { MetaFunction } from "react-router";
 import { useToast } from "~/hooks/use-toast";
-import fbsLogo from "~/assets/fbs-logo.gif";
 import { generateCobraLetterPdf, CobraLetterData } from "~/lib/generateCobraLetterPdf";
 
 export const meta: MetaFunction = () => [{ title: "COBRA Letter Generator — FBS" }];

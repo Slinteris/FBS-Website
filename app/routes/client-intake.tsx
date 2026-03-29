@@ -8,7 +8,6 @@ import { FileDown } from "lucide-react";
 import { Link } from "react-router";
 import type { MetaFunction } from "react-router";
 import { useToast } from "~/hooks/use-toast";
-import fbsLogo from "~/assets/fbs-logo.gif";
 import { generateIntakePdf } from "~/lib/generateIntakePdf";
 
 export const meta: MetaFunction = () => [{ title: "Client Intake — FBS" }];

@@ -6,7 +6,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "~/com
 import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell } from "~/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select";
 import { Calculator, ArrowLeft, User, Mail, Printer } from "lucide-react";
-import fbsLogo from "~/assets/fbs-logo.gif";
 import { Link } from "react-router";
 import type { MetaFunction } from "react-router";
 
@@ -141,9 +140,6 @@ function AccessGate({ onAccess }: { onAccess: () => void }) {
             </div>
             <Button type="submit" size="lg" className="w-full gap-2"><Calculator className="h-4 w-4" /> Access Calculator</Button>
           </form>
-          <div className="mt-6 text-center">
-            <Link to="/" className="text-sm text-muted-foreground hover:text-primary transition-colors">← Back to Home</Link>
-          </div>
         </CardContent>
       </Card>
     </div>
