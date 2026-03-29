@@ -10,8 +10,7 @@ import {
 } from "react-router";
 import { useState } from "react";
 import type { ReactNode } from "react";
-import { Toaster } from "~/components/ui/toaster";
-import { Toaster as Sonner } from "~/components/ui/sonner";
+import { Toaster } from "~/components/ui/sonner";
 import { TooltipProvider } from "~/components/ui/tooltip";
 import { QuoteDialog } from "~/components/QuoteDialog";
 import { Button } from "~/components/ui/button";
@@ -21,6 +20,9 @@ import stylesheet from "~/index.css?url";
 import type { LinksFunction } from "react-router";
 
 export const links: LinksFunction = () => [
+  { rel: "preconnect", href: "https://fonts.googleapis.com" },
+  { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+  { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" },
   { rel: "stylesheet", href: stylesheet },
 ];
 
@@ -28,7 +30,7 @@ function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <nav className="sticky top-0 z-50 border-b bg-card/80 backdrop-blur-md">
+    <nav className="sticky top-0 z-50 border-b bg-card/80 backdrop-blur-md" aria-label="Main navigation">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
         <Link to="/" className="flex items-center gap-3">
           <img src={fbsLogo} alt="Flexible Benefit Solutions Insurance Brokerage, Inc." className="h-16" />
@@ -48,6 +50,7 @@ function Navbar() {
           className="md:hidden p-2 text-muted-foreground hover:text-foreground"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           aria-label="Toggle menu"
+          aria-expanded={mobileMenuOpen}
         >
           {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </button>
@@ -77,7 +80,7 @@ function Footer() {
     <footer className="border-t bg-primary py-12 text-primary-foreground">
       <div className="mx-auto max-w-7xl px-6">
         <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
-          <p className="text-sm text-primary-foreground/60">
+          <p className="text-sm text-primary-foreground/80">
             © {new Date().getFullYear()} Flexible Benefit Solutions Insurance Brokerage, Inc. All rights reserved.
           </p>
         </div>
@@ -107,10 +110,12 @@ export function Layout({ children }: { children: ReactNode }) {
 export default function App() {
   return (
     <TooltipProvider>
+      <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground">
+        Skip to content
+      </a>
       <Toaster />
-      <Sonner />
       <Navbar />
-      <main>
+      <main id="main">
         <Outlet />
       </main>
       <Footer />

@@ -6,7 +6,10 @@ import { LogIn } from "lucide-react";
 import type { MetaFunction } from "react-router";
 import PartnerInfoForm from "~/components/PartnerInfoForm";
 
-export const meta: MetaFunction = () => [{ title: "Affiliate Partner — FBS" }];
+export const meta: MetaFunction = () => [
+  { title: "Affiliate Partner — FBS" },
+  { name: "robots", content: "noindex" },
+];
 
 type View = "login" | "signup";
 
@@ -21,7 +24,7 @@ const AffiliateLogin = () => {
         <div className="flex flex-col lg:flex-row gap-8 items-start">
           {/* Partner Program Highlights */}
           <div className="flex-1 rounded-xl border border-primary/10 bg-muted/40 p-6">
-            <h2 className="text-lg font-bold text-foreground mb-1" style={{ fontFamily: "'Playfair Display', serif" }}>
+            <h2 className="text-lg font-bold text-foreground mb-1">
               Our Partner Program
             </h2>
             <p className="text-sm text-muted-foreground mb-4">
@@ -56,7 +59,7 @@ const AffiliateLogin = () => {
         {view === "login" ? (
           <>
             <div className="text-center mb-8">
-              <h1 className="text-2xl font-bold text-foreground" style={{ fontFamily: "'Playfair Display', serif" }}>
+              <h1 className="text-2xl font-bold text-foreground">
                 Affiliate Partner Login
               </h1>
               <p className="mt-2 text-sm text-muted-foreground">
@@ -88,7 +91,7 @@ const AffiliateLogin = () => {
         ) : (
           <>
             <div className="text-center mb-8">
-              <h1 className="text-2xl font-bold text-foreground" style={{ fontFamily: "'Playfair Display', serif" }}>
+              <h1 className="text-2xl font-bold text-foreground">
                 Become an Affiliate Partner
               </h1>
               <p className="mt-2 text-sm text-muted-foreground">

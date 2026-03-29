@@ -12,7 +12,11 @@ import { uploadFile, getPresignedUrl } from "~/lib/spaces.server";
 import { sendEmail } from "~/lib/brevo.server";
 import { escapeHtml } from "~/lib/utils";
 
-export const meta: MetaFunction = () => [{ title: "Secure Document Upload — FBS" }];
+export const meta: MetaFunction = () => [
+  { title: "Secure Document Upload — FBS" },
+  { name: "description", content: "Securely upload documents to Flexible Benefit Solutions. Files are encrypted and sent directly to your broker." },
+  { tagName: "link", rel: "canonical", href: "https://www.fbsinsurance.com/upload" },
+];
 
 const MAX_BYTES = 10 * 1024 * 1024; // 10 MB
 
@@ -114,7 +118,7 @@ const UploadDocuments = () => {
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
             <Lock className="h-8 w-8 text-primary" />
           </div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-foreground" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+          <h1 className="text-3xl font-extrabold font-body tracking-tight text-foreground">
             Secure Document Upload
           </h1>
           <p className="mt-3 text-muted-foreground">

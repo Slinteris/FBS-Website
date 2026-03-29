@@ -9,10 +9,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~
 import { FileDown } from "lucide-react";
 import { Link } from "react-router";
 import type { MetaFunction } from "react-router";
-import { useToast } from "~/hooks/use-toast";
+import { toast } from "sonner";
 import { generateCobraLetterPdf, CobraLetterData } from "~/lib/generateCobraLetterPdf";
 
-export const meta: MetaFunction = () => [{ title: "COBRA Letter Generator — FBS" }];
+export const meta: MetaFunction = () => [
+  { title: "COBRA Letter Generator — FBS" },
+  { name: "robots", content: "noindex" },
+];
 
 const today = new Date().toISOString().split("T")[0];
 
@@ -52,7 +55,7 @@ const CobraLetter = () => {
     } : {}),
   });
   const [noAdminFee, setNoAdminFee] = useState(false);
-  const { toast } = useToast();
+
 
   const update = (field: keyof CobraLetterData, value: string) => {
     setForm((prev) => {
@@ -97,17 +100,17 @@ const CobraLetter = () => {
 
   const handleGenerate = () => {
     if (!form.employeeName || !form.coverageType) {
-      toast({ title: "Missing info", description: "Please enter the employee name and select a coverage type.", variant: "destructive" });
+      toast.error("Please enter the employee name and select a coverage type.");
       return;
     }
     generateCobraLetterPdf(form);
-    toast({ title: "PDF Generated", description: "Your COBRA letter has been downloaded." });
+    toast.success("Your COBRA letter has been downloaded.");
   };
 
   return (
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-3xl px-6 py-10">
-        <h1 className="text-2xl font-bold text-foreground mb-1" style={{ fontFamily: "'Playfair Display', serif" }}>
+        <h1 className="text-2xl font-bold text-foreground mb-1">
           COBRA Continuation Coverage Notice
         </h1>
         <p className="text-sm text-muted-foreground mb-8">
@@ -117,7 +120,7 @@ const CobraLetter = () => {
         {/* Employer / Plan Info */}
         <Card className="mb-6">
           <CardContent className="p-6">
-            <h2 className="text-lg font-semibold text-foreground mb-4" style={{ fontFamily: "'Playfair Display', serif" }}>
+            <h2 className="text-lg font-semibold text-foreground mb-4">
               Employer & Plan Information
             </h2>
             <div className="grid gap-4 sm:grid-cols-2">
@@ -148,7 +151,7 @@ const CobraLetter = () => {
         {/* Employee Info */}
         <Card className="mb-6">
           <CardContent className="p-6">
-            <h2 className="text-lg font-semibold text-foreground mb-4" style={{ fontFamily: "'Playfair Display', serif" }}>
+            <h2 className="text-lg font-semibold text-foreground mb-4">
               Employee Information
             </h2>
             <div className="grid gap-4 sm:grid-cols-2">
@@ -165,7 +168,7 @@ const CobraLetter = () => {
         {/* Qualifying Event */}
         <Card className="mb-6">
           <CardContent className="p-6">
-            <h2 className="text-lg font-semibold text-foreground mb-4" style={{ fontFamily: "'Playfair Display', serif" }}>
+            <h2 className="text-lg font-semibold text-foreground mb-4">
               Qualifying Event
             </h2>
             <div className="grid gap-4 sm:grid-cols-2">
@@ -189,7 +192,7 @@ const CobraLetter = () => {
         {/* Coverage Costs */}
         <Card className="mb-8">
           <CardContent className="p-6">
-            <h2 className="text-lg font-semibold text-foreground mb-4" style={{ fontFamily: "'Playfair Display', serif" }}>
+            <h2 className="text-lg font-semibold text-foreground mb-4">
               COBRA Coverage Costs & Deadlines
             </h2>
             <div className="grid gap-4 sm:grid-cols-2">

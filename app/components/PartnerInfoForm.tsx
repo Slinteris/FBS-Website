@@ -64,7 +64,6 @@ const PartnerInfoForm = ({ onComplete }: PartnerInfoFormProps) => {
           <Building2 className="h-6 w-6 text-primary" />
           <h2
             className="text-xl font-bold text-foreground"
-            style={{ fontFamily: "'Playfair Display', serif" }}
           >
             Partner Profile Setup
           </h2>

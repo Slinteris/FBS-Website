@@ -118,7 +118,29 @@ export async function action({ request }: ActionFunctionArgs) {
 
 export const meta: MetaFunction = () => [
   { title: "Flexible Benefit Solutions Insurance Brokerage" },
-  { name: "description", content: "Independent employee benefit insurance brokerage serving small & mid-size businesses." },
+  { name: "description", content: "Independent employee benefit insurance brokerage serving small & mid-size businesses in Newburyport, MA. Health, dental, vision, life & disability plans for companies with 2–500+ employees." },
+  { tagName: "link", rel: "canonical", href: "https://www.fbsinsurance.com/" },
+  {
+    "script:ld+json": {
+      "@context": "https://schema.org",
+      "@type": "InsuranceAgency",
+      name: "Flexible Benefit Solutions Insurance Brokerage, Inc.",
+      url: "https://www.fbsinsurance.com",
+      telephone: "+19784650121",
+      email: "sal@fbsinsurance.com",
+      address: {
+        "@type": "PostalAddress",
+        streetAddress: "61 Pleasant Street",
+        addressLocality: "Newburyport",
+        addressRegion: "MA",
+        postalCode: "01950",
+        addressCountry: "US",
+      },
+      description: "Independent employee benefit insurance brokerage serving small & mid-size businesses.",
+      areaServed: "US",
+      priceRange: "Free consultation",
+    },
+  },
 ];
 
 const services = [
@@ -183,7 +205,7 @@ const Index = () => {
             </Link>
           </div>
           <div className="max-w-3xl">
-            <Badge variant="secondary" className="mb-6 bg-secondary/15 text-secondary-foreground">
+            <Badge variant="secondary" className="mb-6 bg-secondary/15 text-foreground">
               <Handshake className="mr-1.5 h-3.5 w-3.5" />
               Trusted Employee Benefit Advisors
             </Badge>
@@ -200,8 +222,8 @@ const Index = () => {
               <Button size="lg" className="gap-2" asChild>
                 <Link to="/client-access">Client Access <ArrowRight className="h-4 w-4" /></Link>
               </Button>
-              <Button size="lg" variant="outline">
-                Who We Work With
+              <Button size="lg" variant="outline" asChild>
+                <a href="#who-we-work-with">Who We Work With</a>
               </Button>
             </div>
           </div>
@@ -231,10 +253,10 @@ const Index = () => {
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
             {stats.map((stat) => (
               <div key={stat.label} className="text-center">
-                <p className="text-2xl font-bold text-primary-foreground md:text-3xl" style={{ fontFamily: "'Playfair Display', serif" }}>
+                <p className="text-2xl font-bold text-primary-foreground md:text-3xl">
                   {stat.value}
                 </p>
-                <p className="text-xs font-medium text-primary-foreground/60">
+                <p className="text-xs font-medium text-primary-foreground/80">
                   {stat.label}
                 </p>
               </div>
@@ -268,7 +290,7 @@ const Index = () => {
                   <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
                     <service.icon className="h-6 w-6" />
                   </div>
-                  <h3 className="mb-2 text-lg font-bold text-foreground" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                  <h3 className="mb-2 text-lg font-bold font-body text-foreground">
                     {service.title}
                   </h3>
                   <p className="text-sm leading-relaxed text-muted-foreground">
@@ -286,24 +308,24 @@ const Index = () => {
         <div className="flex animate-marquee gap-12 whitespace-nowrap">
           {[...Array(2)].map((_, i) => (
             <div key={i} className="flex items-center gap-16 shrink-0">
-              <img src={bcbsLogo} alt="Blue Cross Blue Shield of Massachusetts" className="h-12 object-contain rounded bg-white/90 px-3 py-1" loading="lazy" />
-              <img src={uhcLogo} alt="UnitedHealthcare" className="h-10 object-contain rounded bg-white/90 px-3 py-1" loading="lazy" />
-              <img src={cignaLogo} alt="Cigna" className="h-12 object-contain rounded bg-white/90 px-3 py-1" loading="lazy" />
-              <img src={hpLogo} alt="Harvard Pilgrim Health Care" className="h-10 object-contain rounded bg-white/90 px-3 py-1" loading="lazy" />
-              <img src={mgbLogo} alt="Mass General Brigham Health Plan" className="h-10 object-contain rounded bg-white/90 px-3 py-1" loading="lazy" />
-              <img src={hneLogo} alt="Health New England" className="h-10 object-contain rounded bg-white/90 px-3 py-1" loading="lazy" />
-              <img src={altusLogo} alt="Altus Dental" className="h-12 object-contain rounded bg-white/90 px-3 py-1" loading="lazy" />
-              <img src={guardianLogo} alt="Guardian" className="h-10 object-contain rounded bg-white/90 px-3 py-1" loading="lazy" />
-              <img src={aetnaLogo} alt="Aetna" className="h-10 object-contain rounded bg-white/90 px-3 py-1" loading="lazy" />
-              <img src={aflacLogo} alt="Aflac" className="h-10 object-contain rounded bg-white/90 px-3 py-1" loading="lazy" />
-              <img src={amGenLogo} alt="American General" className="h-10 object-contain rounded bg-white/90 px-3 py-1" loading="lazy" />
-              <img src={bostonMutualLogo} alt="Boston Mutual" className="h-12 object-contain rounded bg-white/90 px-3 py-1" loading="lazy" />
-              <img src={connecticareLogo} alt="ConnectiCare" className="h-10 object-contain rounded bg-white/90 px-3 py-1" loading="lazy" />
-              <img src={hartfordLogo} alt="The Hartford" className="h-12 object-contain rounded bg-white/90 px-3 py-1" loading="lazy" />
-              <img src={metlifeLogo} alt="MetLife" className="h-10 object-contain rounded bg-white/90 px-3 py-1" loading="lazy" />
-              <img src={principalLogo} alt="Principal Financial Group" className="h-10 object-contain rounded bg-white/90 px-3 py-1" loading="lazy" />
-              <img src={relianceLogo} alt="Reliance Standard" className="h-10 object-contain rounded bg-white/90 px-3 py-1" loading="lazy" />
-              <img src={sunlifeLogo} alt="Sun Life Financial" className="h-10 object-contain rounded bg-white/90 px-3 py-1" loading="lazy" />
+              <img src={bcbsLogo} alt="Blue Cross Blue Shield of Massachusetts" className="h-12 object-contain rounded bg-white/90 px-3 py-1" width={120} height={48} loading="lazy" />
+              <img src={uhcLogo} alt="UnitedHealthcare" className="h-10 object-contain rounded bg-white/90 px-3 py-1" width={100} height={40} loading="lazy" />
+              <img src={cignaLogo} alt="Cigna" className="h-12 object-contain rounded bg-white/90 px-3 py-1" width={120} height={48} loading="lazy" />
+              <img src={hpLogo} alt="Harvard Pilgrim Health Care" className="h-10 object-contain rounded bg-white/90 px-3 py-1" width={100} height={40} loading="lazy" />
+              <img src={mgbLogo} alt="Mass General Brigham Health Plan" className="h-10 object-contain rounded bg-white/90 px-3 py-1" width={100} height={40} loading="lazy" />
+              <img src={hneLogo} alt="Health New England" className="h-10 object-contain rounded bg-white/90 px-3 py-1" width={100} height={40} loading="lazy" />
+              <img src={altusLogo} alt="Altus Dental" className="h-12 object-contain rounded bg-white/90 px-3 py-1" width={120} height={48} loading="lazy" />
+              <img src={guardianLogo} alt="Guardian" className="h-10 object-contain rounded bg-white/90 px-3 py-1" width={100} height={40} loading="lazy" />
+              <img src={aetnaLogo} alt="Aetna" className="h-10 object-contain rounded bg-white/90 px-3 py-1" width={100} height={40} loading="lazy" />
+              <img src={aflacLogo} alt="Aflac" className="h-10 object-contain rounded bg-white/90 px-3 py-1" width={100} height={40} loading="lazy" />
+              <img src={amGenLogo} alt="American General" className="h-10 object-contain rounded bg-white/90 px-3 py-1" width={100} height={40} loading="lazy" />
+              <img src={bostonMutualLogo} alt="Boston Mutual" className="h-12 object-contain rounded bg-white/90 px-3 py-1" width={120} height={48} loading="lazy" />
+              <img src={connecticareLogo} alt="ConnectiCare" className="h-10 object-contain rounded bg-white/90 px-3 py-1" width={100} height={40} loading="lazy" />
+              <img src={hartfordLogo} alt="The Hartford" className="h-12 object-contain rounded bg-white/90 px-3 py-1" width={120} height={48} loading="lazy" />
+              <img src={metlifeLogo} alt="MetLife" className="h-10 object-contain rounded bg-white/90 px-3 py-1" width={100} height={40} loading="lazy" />
+              <img src={principalLogo} alt="Principal Financial Group" className="h-10 object-contain rounded bg-white/90 px-3 py-1" width={100} height={40} loading="lazy" />
+              <img src={relianceLogo} alt="Reliance Standard" className="h-10 object-contain rounded bg-white/90 px-3 py-1" width={100} height={40} loading="lazy" />
+              <img src={sunlifeLogo} alt="Sun Life Financial" className="h-10 object-contain rounded bg-white/90 px-3 py-1" width={100} height={40} loading="lazy" />
             </div>
           ))}
         </div>
@@ -334,7 +356,7 @@ const Index = () => {
                   <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
                     <item.icon className="h-6 w-6" />
                   </div>
-                  <h3 className="mb-2 text-lg font-bold text-foreground" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                  <h3 className="mb-2 text-lg font-bold font-body text-foreground">
                     {item.title === "Plan Set Up & Installation" ? (
                       <>Plan Set Up &<br />Installation</>
                     ) : item.title === "Plan Design & Benefit Strategy" ? (
@@ -434,7 +456,7 @@ const Index = () => {
                     <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
                       <item.icon className="h-5 w-5" />
                     </div>
-                    <h4 className="font-bold text-foreground" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                    <h4 className="font-bold font-body text-foreground">
                       {item.title}
                     </h4>
                     <p className="mt-1 text-xs text-muted-foreground">{item.desc}</p>
@@ -473,7 +495,7 @@ const Index = () => {
                   <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
                     <item.icon className="h-6 w-6" />
                   </div>
-                  <h3 className="mb-2 text-lg font-bold text-foreground" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                  <h3 className="mb-2 text-lg font-bold font-body text-foreground">
                     {item.title}
                   </h3>
                   <p className="text-sm leading-relaxed text-muted-foreground">
@@ -497,10 +519,10 @@ const Index = () => {
             your current plan, identify savings, and show you what's possible.
           </p>
           <div className="mt-10 flex flex-wrap justify-center gap-4">
-            <Button size="lg" variant="secondary" className="gap-2" asChild>
-              <a href="#contact"><Phone className="h-4 w-4" /> Call Us Today</a>
+            <Button size="lg" variant="secondary" className="gap-2 h-14 px-10 text-base" asChild>
+              <a href="tel:978-465-0121"><Phone className="h-5 w-5" /> Call Us Today</a>
             </Button>
-            <Button size="lg" variant="secondary" className="gap-2" asChild>
+            <Button size="lg" variant="secondary" className="gap-2 h-14 px-10 text-base" asChild>
               <a href="#contact">Request a Proposal</a>
             </Button>
           </div>
@@ -538,7 +560,7 @@ const Index = () => {
                   </div>
                   <div>
                     <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Phone</p>
-                    <p className="font-semibold text-foreground">(978) 465-0121</p>
+                    <a href="tel:978-465-0121" className="font-semibold text-foreground hover:text-primary transition-colors">(978) 465-0121</a>
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
@@ -547,7 +569,7 @@ const Index = () => {
                   </div>
                   <div>
                     <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Email</p>
-                    <p className="font-semibold text-foreground">sal@fbsinsurance.com</p>
+                    <a href="mailto:sal@fbsinsurance.com" className="font-semibold text-foreground hover:text-primary transition-colors">sal@fbsinsurance.com</a>
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
@@ -564,7 +586,7 @@ const Index = () => {
 
             <Card className="border-border/50">
               <CardContent className="p-8">
-                <h3 className="mb-6 text-xl font-bold text-foreground" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                <h3 className="mb-6 text-xl font-bold font-body text-foreground">
                   Request a Free Consultation
                 </h3>
                 <Form method="post" className="space-y-4">
@@ -574,17 +596,20 @@ const Index = () => {
                       name="firstName"
                       placeholder="First name"
                       required
+                      aria-label="First name"
                       className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     />
                     <input
                       name="lastName"
                       placeholder="Last name"
+                      aria-label="Last name"
                       className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     />
                   </div>
                   <input
                     name="company"
                     placeholder="Company name"
+                    aria-label="Company name"
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   />
                   <input
@@ -592,18 +617,21 @@ const Index = () => {
                     type="email"
                     placeholder="Email address"
                     required
+                    aria-label="Email address"
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   />
                   <input
                     name="phone"
                     type="tel"
                     placeholder="Phone number"
+                    aria-label="Phone number"
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   />
                   <textarea
                     name="message"
                     placeholder="Tell us about your current benefits or what you're looking for..."
                     rows={4}
+                    aria-label="Message"
                     className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   />
 

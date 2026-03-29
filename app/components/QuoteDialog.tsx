@@ -44,7 +44,7 @@ export function QuoteDialog({ trigger }: QuoteDialogProps) {
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+          <DialogTitle className="text-xl font-bold font-body">
             Get a Quote
           </DialogTitle>
           <p className="text-sm text-muted-foreground">

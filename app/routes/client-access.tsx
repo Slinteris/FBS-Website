@@ -19,7 +19,11 @@ import { Link } from "react-router";
 import type { MetaFunction } from "react-router";
 import fbsLogo from "~/assets/fbs-logo.gif";
 
-export const meta: MetaFunction = () => [{ title: "Client Access — FBS" }];
+export const meta: MetaFunction = () => [
+  { title: "Client Access — FBS" },
+  { name: "description", content: "Access your employee benefit plans, documents, and enrollment tools through the FBS client portal." },
+  { tagName: "link", rel: "canonical", href: "https://www.fbsinsurance.com/client-access" },
+];
 
 const employerFeatures = [
   { icon: FileText, text: "View & download policy documents and certificates" },
@@ -62,8 +66,7 @@ const LoginCard = ({
               <Icon className="h-5 w-5" />
             </div>
             <h2
-              className="text-xl font-bold text-foreground"
-              style={{ fontFamily: "'DM Sans', sans-serif" }}
+              className="text-xl font-bold font-body text-foreground"
             >
               {title}
             </h2>
@@ -150,7 +153,6 @@ const ClientAccess = () => {
           </div>
           <h1
             className="text-3xl font-bold tracking-tight text-foreground md:text-4xl"
-            style={{ fontFamily: "'Playfair Display', serif" }}
           >
             Client Access
           </h1>

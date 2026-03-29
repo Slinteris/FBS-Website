@@ -10,7 +10,10 @@ import { Link } from "react-router";
 import type { MetaFunction } from "react-router";
 import fbsLogo from "~/assets/fbs-logo.gif";
 
-export const meta: MetaFunction = () => [{ title: "Deduction Calculator — FBS" }];
+export const meta: MetaFunction = () => [
+  { title: "Deduction Calculator — FBS" },
+  { name: "robots", content: "noindex" },
+];
 
 type ContributionMode = "percentage" | "flat";
 

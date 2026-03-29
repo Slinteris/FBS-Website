@@ -7,10 +7,13 @@ import { Label } from "~/components/ui/label";
 import { FileDown } from "lucide-react";
 import { Link } from "react-router";
 import type { MetaFunction } from "react-router";
-import { useToast } from "~/hooks/use-toast";
+import { toast } from "sonner";
 import { generateIntakePdf } from "~/lib/generateIntakePdf";
 
-export const meta: MetaFunction = () => [{ title: "Client Intake — FBS" }];
+export const meta: MetaFunction = () => [
+  { title: "Client Intake — FBS" },
+  { name: "robots", content: "noindex" },
+];
 
 interface FormData {
   // Personal Info
@@ -66,24 +69,24 @@ const defaultForm: FormData = {
 
 const ClientIntake = () => {
   const [form, setForm] = useState<FormData>(defaultForm);
-  const { toast } = useToast();
+
 
   const update = (field: keyof FormData, value: string | boolean) =>
     setForm((prev) => ({ ...prev, [field]: value }));
 
   const handleGenerate = () => {
     if (!form.firstName || !form.lastName) {
-      toast({ title: "Missing info", description: "Please enter at least a first and last name.", variant: "destructive" });
+      toast.error("Please enter at least a first and last name.");
       return;
     }
     generateIntakePdf(form);
-    toast({ title: "PDF Generated", description: "Your client intake document has been downloaded." });
+    toast.success("Your client intake document has been downloaded.");
   };
 
   return (
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-3xl px-6 py-10">
-        <h1 className="text-2xl font-bold text-foreground mb-1" style={{ fontFamily: "'Playfair Display', serif" }}>
+        <h1 className="text-2xl font-bold text-foreground mb-1">
           Client Intake Form
         </h1>
         <p className="text-sm text-muted-foreground mb-8">
@@ -93,7 +96,7 @@ const ClientIntake = () => {
         {/* Personal Information */}
         <Card className="mb-6">
           <CardContent className="p-6">
-            <h2 className="text-lg font-semibold text-foreground mb-4" style={{ fontFamily: "'Playfair Display', serif" }}>
+            <h2 className="text-lg font-semibold text-foreground mb-4">
               Personal Information
             </h2>
             <div className="grid gap-4 sm:grid-cols-2">
@@ -144,7 +147,7 @@ const ClientIntake = () => {
         {/* Company Information */}
         <Card className="mb-6">
           <CardContent className="p-6">
-            <h2 className="text-lg font-semibold text-foreground mb-4" style={{ fontFamily: "'Playfair Display', serif" }}>
+            <h2 className="text-lg font-semibold text-foreground mb-4">
               Company Information
             </h2>
             <div className="grid gap-4 sm:grid-cols-2">
@@ -183,7 +186,7 @@ const ClientIntake = () => {
         {/* Employment Details */}
         <Card className="mb-6">
           <CardContent className="p-6">
-            <h2 className="text-lg font-semibold text-foreground mb-4" style={{ fontFamily: "'Playfair Display', serif" }}>
+            <h2 className="text-lg font-semibold text-foreground mb-4">
               Employment Details
             </h2>
             <div className="grid gap-4 sm:grid-cols-2">
@@ -206,7 +209,7 @@ const ClientIntake = () => {
         {/* Medical Premiums */}
         <Card className="mb-6">
           <CardContent className="p-6">
-            <h2 className="text-lg font-semibold text-foreground mb-4" style={{ fontFamily: "'Playfair Display', serif" }}>
+            <h2 className="text-lg font-semibold text-foreground mb-4">
               Current Medical Premiums
             </h2>
             <div className="grid gap-4 sm:grid-cols-2">
@@ -237,7 +240,7 @@ const ClientIntake = () => {
         {/* Coverage Interest Checkboxes */}
         <Card className="mb-8">
           <CardContent className="p-6">
-            <h2 className="text-lg font-semibold text-foreground mb-4" style={{ fontFamily: "'Playfair Display', serif" }}>
+            <h2 className="text-lg font-semibold text-foreground mb-4">
               Additional Information
             </h2>
             <div className="grid gap-4 sm:grid-cols-2">
