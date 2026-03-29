@@ -13,7 +13,7 @@ if (fs.existsSync(envPath)) {
       const eqIdx = trimmed.indexOf("=");
       if (eqIdx === -1) return;
       const key = trimmed.slice(0, eqIdx).trim();
-      const value = trimmed.slice(eqIdx + 1).trim();
+      const value = trimmed.slice(eqIdx + 1).trim().replace(/^["']|["']$/g, "");
       env[key] = value;
     });
 }
@@ -26,8 +26,8 @@ module.exports = {
       args: "./build/server/index.js",
       env: {
         NODE_ENV: "production",
-        PORT: 3000,
         ...env,
+        PORT: 3000,   // always wins; Nginx proxies to this
       },
     },
   ],
