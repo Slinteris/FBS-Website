@@ -35,6 +35,7 @@ jobs:
             [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
             cd ~/fbs-website
             git pull origin main
-            npm ci --omit=dev
+            npm ci
             npm run build
+            npm prune --omit=dev
             pm2 reload ecosystem.config.cjs --env production || pm2 start ecosystem.config.cjs

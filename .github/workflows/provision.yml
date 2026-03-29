@@ -77,8 +77,9 @@ jobs:
               fi
               cd ~/fbs-website
               git pull origin main
-              npm ci --omit=dev
+              npm ci
               npm run build
+              npm prune --omit=dev
             "
 
             echo "=== 7/13 Create .env ==="
