@@ -68,12 +68,11 @@ export async function action({ request }: ActionFunctionArgs) {
       `,
       replyTo: { email, name: `${firstName} ${lastName}` },
     });
+    return { success: true };
   } catch (err) {
     console.error("Upload action failed:", err);
     return { success: false, error: "Something went wrong. Please try again or contact us directly." };
   }
-
-  return { success: true };
 }
 
 const UploadDocuments = () => {
@@ -91,10 +90,10 @@ const UploadDocuments = () => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const newFiles = Array.from(e.target.files);
-      const oversized = newFiles.filter((f) => f.size > 10 * 1024 * 1024);
+      const oversized = newFiles.filter((f) => f.size > MAX_BYTES);
       if (oversized.length) {
         toast.error("Some files exceed the 10 MB limit and were not added.");
-        const valid = newFiles.filter((f) => f.size <= 10 * 1024 * 1024);
+        const valid = newFiles.filter((f) => f.size <= MAX_BYTES);
         setFiles((prev) => [...prev, ...valid]);
       } else {
         setFiles((prev) => [...prev, ...newFiles]);
