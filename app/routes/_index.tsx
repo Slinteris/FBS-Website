@@ -46,35 +46,65 @@ export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
   const intent = formData.get("intent");
 
-  if (intent !== "contact") {
-    return { success: false, error: "Unknown form intent." };
+  if (intent === "contact") {
+    const firstName = String(formData.get("firstName") ?? "").trim();
+    const lastName = String(formData.get("lastName") ?? "").trim();
+    const company = String(formData.get("company") ?? "").trim();
+    const email = String(formData.get("email") ?? "").trim();
+    const phone = String(formData.get("phone") ?? "").trim();
+    const message = String(formData.get("message") ?? "").trim();
+
+    if (!firstName || !email) {
+      return { success: false, intent: "contact", error: "Name and email are required." };
+    }
+
+    await sendEmail({
+      subject: `New consultation request from ${firstName} ${lastName}`,
+      htmlContent: `
+        <h2>New Consultation Request</h2>
+        <p><strong>Name:</strong> ${firstName} ${lastName}</p>
+        <p><strong>Company:</strong> ${company || "—"}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Phone:</strong> ${phone || "—"}</p>
+        <p><strong>Message:</strong><br>${message || "—"}</p>
+      `,
+      replyTo: { email, name: `${firstName} ${lastName}` },
+    });
+
+    return { success: true, intent: "contact" };
   }
 
-  const firstName = String(formData.get("firstName") ?? "").trim();
-  const lastName = String(formData.get("lastName") ?? "").trim();
-  const company = String(formData.get("company") ?? "").trim();
-  const email = String(formData.get("email") ?? "").trim();
-  const phone = String(formData.get("phone") ?? "").trim();
-  const message = String(formData.get("message") ?? "").trim();
+  if (intent === "quote") {
+    const firstName = String(formData.get("firstName") ?? "").trim();
+    const lastName = String(formData.get("lastName") ?? "").trim();
+    const company = String(formData.get("company") ?? "").trim();
+    const email = String(formData.get("email") ?? "").trim();
+    const phone = String(formData.get("phone") ?? "").trim();
+    const employees = String(formData.get("employees") ?? "").trim();
+    const message = String(formData.get("message") ?? "").trim();
 
-  if (!firstName || !email) {
-    return { success: false, error: "Name and email are required." };
+    if (!firstName || !email) {
+      return { success: false, intent: "quote", error: "Name and email are required." };
+    }
+
+    await sendEmail({
+      subject: `Quote request from ${firstName} ${lastName} — ${company}`,
+      htmlContent: `
+        <h2>Quote Request</h2>
+        <p><strong>Name:</strong> ${firstName} ${lastName}</p>
+        <p><strong>Company:</strong> ${company || "—"}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Phone:</strong> ${phone || "—"}</p>
+        <p><strong>Employees:</strong> ${employees || "—"}</p>
+        <p><strong>Message:</strong><br>${message || "—"}</p>
+      `,
+      replyTo: { email, name: `${firstName} ${lastName}` },
+    });
+
+    return { success: true, intent: "quote" };
   }
 
-  await sendEmail({
-    subject: `New consultation request from ${firstName} ${lastName}`,
-    htmlContent: `
-      <h2>New Consultation Request</h2>
-      <p><strong>Name:</strong> ${firstName} ${lastName}</p>
-      <p><strong>Company:</strong> ${company || "—"}</p>
-      <p><strong>Email:</strong> ${email}</p>
-      <p><strong>Phone:</strong> ${phone || "—"}</p>
-      <p><strong>Message:</strong><br>${message || "—"}</p>
-    `,
-    replyTo: { email, name: `${firstName} ${lastName}` },
-  });
-
-  return { success: true, intent: "contact" };
+  return { success: false, error: "Unknown form intent." };
 }
 
 export const meta: MetaFunction = () => [
