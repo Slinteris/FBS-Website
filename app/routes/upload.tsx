@@ -222,7 +222,7 @@ const UploadDocuments = () => {
               </div>
 
               {actionData?.success && (
-                <p className="text-sm font-medium text-accent">
+                <p className="text-sm font-medium text-secondary">
                   Documents submitted securely! We'll review them shortly.
                 </p>
               )}

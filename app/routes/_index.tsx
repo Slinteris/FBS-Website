@@ -1,11 +1,12 @@
+import { useState, useEffect } from "react";
 import { Button } from "~/components/ui/button";
-import CobraLetterDialog from "~/components/CobraLetterDialog";
 import { Card, CardContent } from "~/components/ui/card";
-import { Badge } from "~/components/ui/badge";
+import { Input } from "~/components/ui/input";
+import { Label } from "~/components/ui/label";
+import { Textarea } from "~/components/ui/textarea";
 import {
   Shield,
   Users,
-  FileText,
   Heart,
   TrendingUp,
   Phone,
@@ -16,7 +17,9 @@ import {
   Building2,
   Handshake,
   Award,
+  Quote,
 } from "lucide-react";
+import { QuoteDialog } from "~/components/QuoteDialog";
 import mgbLogo from "~/assets/mgb-health-plan-logo.png";
 import hneLogo from "~/assets/health-new-england-logo.png";
 import bcbsLogo from "~/assets/bcbs-ma-logo.png";
@@ -109,47 +112,59 @@ export const meta: MetaFunction = () => [
   },
 ];
 
-const services = [
+const products = [
   {
     icon: Heart,
     title: "Health, Dental & Vision",
     description:
-      "Comprehensive HMO, PPO, EPO style medical plans, dental, and vision plans all tailored to your workforce needs and company budget.",
+      "Comprehensive HMO, PPO, EPO medical plans plus dental and vision — tailored to your workforce and budget.",
   },
   {
     icon: Shield,
     title: "Life & Disability",
     description:
-      "Protect your employees with base level financial protection with group life, short-term, and long-term disability insurance coverage.  ",
+      "Group life, short-term and long-term disability coverage to protect your employees financially.",
   },
   {
     icon: TrendingUp,
-    title: "Level Funded Medical ",
+    title: "Level Funded Medical",
     description:
-      "Great options for companies with healthy employee population.  Employers participate in low claim years with return of premium.",
+      "Ideal for healthy employee populations. Employers participate in low claim years with return of premium.",
   },
   {
     icon: Users,
     title: "Voluntary Benefits",
     description:
-      "Accident, critical illness, hospital indemnity, and supplemental options employees love, and won't cost the company money.",
+      "Accident, critical illness, hospital indemnity, and supplemental options — at no cost to the company.",
   },
-];
-
-const stats = [
-  { value: "25+", label: "Years in Business" },
-  { value: "40+", label: "Insurance Carriers" },
-  { value: "50+", label: "Licensed States" },
-  { value: "98%+", label: "Client Retention" },
 ];
 
 const reasons = [
   "Personalized plan design & benefit strategy",
-  "Dedicated account management team",
-  "On-going Administration Support",
+  "Dedicated account management",
+  "Plan setup, installation & underwriting",
   "Employee enrollment & communication support",
-  "Annual benchmarking & renewal strategy",
+  "On-going administration & compliance (ACA, HIRD, ERISA)",
   "Claims advocacy & resolution",
+];
+
+// TODO: Replace with real client testimonials
+const testimonials = [
+  {
+    quote: "Sal and his team made switching our benefits provider completely painless. We saved 15% on our premiums without sacrificing coverage.",
+    name: "Client Name",
+    company: "Company Name",
+  },
+  {
+    quote: "Having a dedicated broker who actually picks up the phone when we have a question has been a game-changer for our HR team.",
+    name: "Client Name",
+    company: "Company Name",
+  },
+  {
+    quote: "FBS handled everything from plan design to employee enrollment. Their expertise in level-funded plans saved us thousands.",
+    name: "Client Name",
+    company: "Company Name",
+  },
 ];
 
 const Index = () => {
@@ -158,113 +173,46 @@ const Index = () => {
   const isSubmitting = navigation.state === "submitting" &&
     navigation.formData?.get("intent") === "contact";
 
+  const [showFloatingCta, setShowFloatingCta] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowFloatingCta(window.scrollY > 600);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
     <div className="min-h-screen bg-background">
       {/* Hero */}
-      <section className="relative overflow-hidden py-6 md:py-8">
+      <section className="relative overflow-hidden py-16 md:py-24">
         <img src={heroBg} alt="" className="absolute inset-0 h-full w-full object-cover" width={1920} height={1080} />
-        <div className="absolute inset-0 bg-background/70" />
+        <div className="absolute inset-0 bg-background/75" />
         <div className="relative mx-auto max-w-7xl px-6">
-          <div className="flex justify-end mb-2">
-            <Link to="/affiliate" className="text-xs text-foreground/40 hover:text-foreground/70 transition-colors underline-offset-2 hover:underline">
-              Affiliate Partner Login
-            </Link>
-          </div>
-          <div className="max-w-3xl">
-            <Badge variant="secondary" className="mb-6 bg-secondary/15 text-foreground">
-              <Handshake className="mr-1.5 h-3.5 w-3.5" />
-              Trusted Employee Benefit Advisors
-            </Badge>
-            <h1 className="text-4xl font-extrabold leading-tight tracking-tight text-foreground md:text-6xl">
-              Benefits that attract,{" "}
-              <span className="text-primary">retain & protect</span> your employees
+          <div className="max-w-2xl">
+            <h1 className="text-4xl font-extrabold leading-tight tracking-tight text-foreground md:text-5xl lg:text-6xl">
+              Benefits that attract, retain & protect your employees
             </h1>
-            <p className="mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground">
-              We design cost-effective, employee benefit programs that
-              keep your people happy and your business competitive — all backed by
-              a dedicated "hands-on" full-service insurance professional.
+            <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground">
+              For over 25 years, we've helped small and mid-size businesses design
+              cost-effective benefit programs — with access to 40+ carriers
+              and hands-on, full-service support.
             </p>
-            <div className="mt-10 flex flex-wrap gap-4">
-              <Button size="lg" className="gap-2" asChild>
-                <Link to="/client-access">Client Access <ArrowRight className="h-4 w-4" /></Link>
-              </Button>
-              <Button size="lg" variant="outline" asChild>
-                <a href="#who-we-work-with">Who We Work With</a>
+            <div className="mt-10 flex flex-wrap items-center gap-4">
+              <QuoteDialog
+                trigger={
+                  <Button size="lg" className="gap-2">
+                    Get a Free Quote <ArrowRight className="h-4 w-4" />
+                  </Button>
+                }
+              />
+              <Button size="lg" variant="outline" className="gap-2 bg-background/50" asChild>
+                <a href="tel:978-465-0121">
+                  <Phone className="h-4 w-4" /> (978) 465-0121
+                </a>
               </Button>
             </div>
-          </div>
-
-          <div className="mt-6 flex flex-col items-end gap-3 md:mt-0 md:absolute md:bottom-8 md:right-6">
-            <Button variant="secondary" size="lg" className="gap-2 shadow-lg" asChild>
-              <Link to="/deduction-calculator">
-                <TrendingUp className="h-4 w-4" />
-                Benefit Payroll Deduction Calculator
-              </Link>
-            </Button>
-            <CobraLetterDialog
-              trigger={
-                <Button variant="secondary" size="lg" className="gap-2 shadow-lg">
-                  <FileText className="h-4 w-4" />
-                  COBRA Letter
-                </Button>
-              }
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* Stats Bar */}
-      <section className="bg-primary/80 py-6">
-        <div className="mx-auto max-w-7xl px-6">
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-            {stats.map((stat) => (
-              <div key={stat.label} className="text-center">
-                <p className="text-2xl font-bold text-primary-foreground md:text-3xl">
-                  {stat.value}
-                </p>
-                <p className="text-xs font-medium text-primary-foreground/80">
-                  {stat.label}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-
-      {/* Products */}
-      <section id="products" className="bg-card pt-24 pb-8">
-        <div className="mx-auto max-w-7xl px-6">
-          <div className="text-center">
-            <Badge variant="outline" className="mb-4">Our Products</Badge>
-            <h2 className="text-3xl font-bold text-foreground md:text-4xl">
-              Comprehensive benefit products
-            </h2>
-            <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
-              From group medical and dental to employee pay all voluntary plans, we
-              find you and your employees the best coverage at the best price.
-            </p>
-          </div>
-
-          <div className="mt-16 grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-            {services.map((service) => (
-              <Card
-                key={service.title}
-                className="group border-border/50 bg-background transition-all hover:border-primary/30 hover:shadow-lg"
-              >
-                <CardContent className="p-6">
-                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
-                    <service.icon className="h-6 w-6" />
-                  </div>
-                  <h3 className="mb-2 text-lg font-bold font-body text-foreground">
-                    {service.title}
-                  </h3>
-                  <p className="text-sm leading-relaxed text-muted-foreground">
-                    {service.description}
-                  </p>
-                </CardContent>
-              </Card>
-            ))}
           </div>
         </div>
       </section>
@@ -297,86 +245,35 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Services */}
-      <section id="services" className="py-24">
+      {/* Products */}
+      <section id="products" className="py-24">
         <div className="mx-auto max-w-7xl px-6">
           <div className="text-center">
-            <Badge variant="outline" className="mb-4">Our Services</Badge>
             <h2 className="text-3xl font-bold text-foreground md:text-4xl">
-              How we help your business
+              Comprehensive benefit products
             </h2>
             <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
-              Beyond great products, we provide hands-on support to make managing your benefits effortless.
+              From group medical and dental to voluntary plans, we find the
+              best coverage at the best price.
             </p>
           </div>
 
           <div className="mt-16 grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-            {[
-              { icon: Award, title: "Plan Set Up & Installation", description: "We will draft and deliver new business paperwork on your behalf that will achieve: Fast underwriting, Quick approval." },
-              { icon: CheckCircle, title: "Plan Design & Benefit Strategy", description: null },
-              { icon: Users, title: "Employee Enrollment Support", description: null },
-              { icon: Shield, title: "On-going Administration Support", description: "We provide On-going support: New Hire Enrollment, Employee Updates, ID card requests, Employee Terminations, Claim Resolution, State & Federal Compliance, ACA / HIRD / ERISA." },
-            ].map((item) => (
-              <Card key={item.title} className="group border-border/50 bg-card transition-all hover:border-primary/30 hover:shadow-lg">
+            {products.map((product) => (
+              <Card
+                key={product.title}
+                className="group border-border/50 bg-card transition-all hover:border-primary/30 hover:shadow-lg"
+              >
                 <CardContent className="p-6">
                   <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
-                    <item.icon className="h-6 w-6" />
+                    <product.icon className="h-6 w-6" />
                   </div>
                   <h3 className="mb-2 text-lg font-bold font-body text-foreground">
-                    {item.title === "Plan Set Up & Installation" ? (
-                      <>Plan Set Up &<br />Installation</>
-                    ) : item.title === "Plan Design & Benefit Strategy" ? (
-                      <>Plan Design &<br />Benefit Strategy</>
-                    ) : item.title}
+                    {product.title}
                   </h3>
-                  {item.title === "Employee Enrollment Support" ? (
-                    <div className="text-sm leading-relaxed text-muted-foreground">
-                      <p>We provide Initial and Open Enrollment Support with custom Employee Communications. You choose what Enrollment method best suits your needs:</p>
-                      <ul className="mt-2 list-disc space-y-1 pl-4">
-                        <li>In-Person Paper</li>
-                        <li>Web Enrollment</li>
-                        <li>Data Transfers</li>
-                      </ul>
-                    </div>
-                  ) : item.title === "Plan Set Up & Installation" ? (
-                    <div className="text-sm leading-relaxed text-muted-foreground">
-                      <p>We will draft and deliver new business paperwork on your behalf that will achieve:</p>
-                      <ul className="mt-2 list-disc space-y-1 pl-4">
-                        <li>Fast underwriting</li>
-                        <li>Quick approval</li>
-                        <li>Accurate billing</li>
-                      </ul>
-                    </div>
-                  ) : item.title === "Plan Design & Benefit Strategy" ? (
-                    <div className="text-sm leading-relaxed text-muted-foreground">
-                      <p>Important factors we look at:</p>
-                      <ul className="mt-2 list-disc space-y-1 pl-4">
-
-                        <li>Plan Benefits</li>
-                        <li>Deductibles & Copays</li>
-                        <li>Provider Networks</li>
-                        <li>Employee Population</li>
-                        <li>Contribution Strategy</li>
-                        <li>Define Employee Eligibility</li>
-                      </ul>
-                    </div>
-                  ) : item.title === "On-going Administration Support" ? (
-                    <div className="text-sm leading-relaxed text-muted-foreground">
-                      <ul className="list-disc space-y-1 pl-4">
-                        <li>New Hire Enrollment</li>
-                        <li>Employee Updates</li>
-                        <li>ID Card Requests</li>
-                        <li>Employee Terminations</li>
-                        <li>Claim Resolution</li>
-                        <li>State & Federal Compliance</li>
-                        <li>ACA / HIRD / ERISA</li>
-                      </ul>
-                    </div>
-                  ) : (
-                    <p className="text-sm leading-relaxed text-muted-foreground">
-                      {item.description}
-                    </p>
-                  )}
+                  <p className="text-sm leading-relaxed text-muted-foreground">
+                    {product.description}
+                  </p>
                 </CardContent>
               </Card>
             ))}
@@ -385,39 +282,43 @@ const Index = () => {
       </section>
 
       {/* Why Us */}
-      <section id="why-us" className="py-24">
+      <section id="why-us" className="bg-card py-24">
         <div className="mx-auto max-w-7xl px-6">
           <div className="grid items-center gap-16 lg:grid-cols-2">
             <div>
-              <Badge variant="outline" className="mb-4">Why Choose Us</Badge>
               <h2 className="text-3xl font-bold text-foreground md:text-4xl">
                 A broker that works <span className="text-primary">for you</span>
               </h2>
               <p className="mt-4 text-muted-foreground">
-                As an independent brokerage, we represent your interests — not an
-                insurance carrier's. That means unbiased advice, broader market
-                access, and solutions built around your cost and benefit goals.
+                As an independent brokerage, we represent your interests — not a
+                carrier's. That means unbiased advice, broader market
+                access, and solutions built around your goals.
               </p>
               <ul className="mt-8 space-y-4">
                 {reasons.map((reason) => (
                   <li key={reason} className="flex items-start gap-3">
-                    <CheckCircle className="mt-0.5 h-5 w-5 shrink-0 text-accent" />
+                    <CheckCircle className="mt-0.5 h-5 w-5 shrink-0 text-secondary" />
                     <span className="text-sm font-medium text-foreground">
                       {reason}
                     </span>
                   </li>
                 ))}
               </ul>
+              <blockquote className="mt-8 border-l-4 border-secondary pl-6">
+                <p className="text-lg font-medium italic text-foreground/80">
+                  "We don't just sell insurance — we manage your entire benefits program."
+                </p>
+              </blockquote>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               {[
                 { icon: Building2, title: "Independent", desc: "Access to 40+ carriers" },
-                { icon: Award, title: "Dept of Insurance", desc: "Licensed in all 50 States" },
-                { icon: Users, title: "Customer Service", desc: "Dedicated Support Contact" },
+                { icon: Award, title: "Licensed", desc: "All 50 states" },
+                { icon: Users, title: "Full Service", desc: "Dedicated support contact" },
                 { icon: Handshake, title: "No Cost", desc: "We're paid by the carrier" },
               ].map((item) => (
-                <Card key={item.title} className="border-border/50 bg-card">
+                <Card key={item.title} className="border-border/50 bg-background">
                   <CardContent className="flex flex-col items-center p-6 text-center">
                     <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
                       <item.icon className="h-5 w-5" />
@@ -434,90 +335,124 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Who We Work With */}
-      <section id="who-we-work-with" className="bg-card py-24">
+      {/* About */}
+      <section className="py-24">
         <div className="mx-auto max-w-7xl px-6">
-          <div className="text-center">
-            <Badge variant="outline" className="mb-4">Who We Work With</Badge>
-            <h2 className="text-3xl font-bold text-foreground md:text-4xl">
-              Industries & employers we serve
-            </h2>
-            <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
-              From startups to established organizations, we partner with employers across a wide range of industries to deliver benefits that make a difference.
-            </p>
+          <div className="grid items-center gap-12 lg:grid-cols-5">
+            <div className="lg:col-span-2 flex justify-center">
+              <img
+                src={salHeadshot}
+                alt="Steven A. Linteris"
+                className="w-full max-w-xs rounded-2xl object-cover aspect-[4/5] shadow-lg"
+              />
+            </div>
+            <div className="lg:col-span-3">
+              <p className="text-sm font-semibold uppercase tracking-wider text-secondary">
+                Meet Your Broker
+              </p>
+              <h2 className="mt-2 text-3xl font-bold text-foreground md:text-4xl">
+                Steven A. Linteris
+              </h2>
+              <p className="mt-1 text-lg text-muted-foreground">
+                Principal & Broker
+              </p>
+              {/* TODO: Replace with Sal's actual bio */}
+              <p className="mt-6 leading-relaxed text-muted-foreground">
+                With over 25 years in employee benefits, Sal founded Flexible Benefit
+                Solutions on a simple principle: every business deserves a broker who
+                puts their interests first. As an independent brokerage, we're not tied
+                to any single carrier — which means you get unbiased advice and access
+                to the best plans on the market.
+              </p>
+              <p className="mt-4 leading-relaxed text-muted-foreground">
+                From plan design to claims resolution, Sal and his team provide the kind
+                of hands-on, personal service that larger firms simply can't match.
+                That's why our client retention rate exceeds 98%.
+              </p>
+              <div className="mt-8 flex flex-wrap gap-4">
+                <Button variant="outline" className="gap-2" asChild>
+                  <a href="tel:978-465-0121"><Phone className="h-4 w-4" /> (978) 465-0121</a>
+                </Button>
+                <Button variant="outline" className="gap-2" asChild>
+                  <a href="mailto:sal@fbsinsurance.com"><Mail className="h-4 w-4" /> sal@fbsinsurance.com</a>
+                </Button>
+              </div>
+            </div>
           </div>
+        </div>
+      </section>
 
-          <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {[
-              { icon: Building2, title: "Small & Mid-Size Businesses", desc: "Tailored plans for companies with 2–500+ employees looking to compete for top talent." },
-              { icon: Users, title: "Professional Services", desc: "Law firms, accounting practices, consulting groups, and other professional organizations." },
-              { icon: Heart, title: "Healthcare & Nonprofits", desc: "Mission-driven organizations that need competitive benefits on lean budgets." },
-              { icon: TrendingUp, title: "Technology & Startups", desc: "Fast-growing companies that need scalable benefits to attract and retain engineers and creators." },
-              { icon: Award, title: "Manufacturing & Trades", desc: "Skilled workforce employers who value robust health and disability coverage." },
-              { icon: Handshake, title: "Hospitality & Retail", desc: "High-turnover industries that benefit from flexible, easy-to-administer plans." },
-            ].map((item) => (
-              <Card key={item.title} className="group border-border/50 bg-background transition-all hover:border-primary/30 hover:shadow-lg">
-                <CardContent className="p-6">
-                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
-                    <item.icon className="h-6 w-6" />
-                  </div>
-                  <h3 className="mb-2 text-lg font-bold font-body text-foreground">
-                    {item.title}
-                  </h3>
-                  <p className="text-sm leading-relaxed text-muted-foreground">
-                    {item.desc}
-                  </p>
-                </CardContent>
-              </Card>
+      {/* Testimonials */}
+      <section className="bg-card py-24">
+        <div className="mx-auto max-w-7xl px-6">
+          <h2 className="text-center text-2xl font-bold text-foreground md:text-3xl">
+            What our clients say
+          </h2>
+          <div className="mt-16 grid gap-12 md:grid-cols-3">
+            {/* TODO: Replace placeholder testimonials with real client quotes */}
+            {testimonials.map((t, i) => (
+              <div key={i} className="relative">
+                <Quote className="absolute -top-3 -left-2 h-10 w-10 text-secondary/40" />
+                <blockquote className="pl-8 text-base leading-relaxed text-foreground/80 italic">
+                  {t.quote}
+                </blockquote>
+                <div className="mt-4 pl-8">
+                  <p className="font-semibold text-foreground">{t.name}</p>
+                  <p className="text-sm text-muted-foreground">{t.company}</p>
+                </div>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
       {/* CTA */}
-      <section className="bg-primary py-20">
+      <section className="bg-secondary py-20">
         <div className="mx-auto max-w-4xl px-6 text-center">
-          <h2 className="text-3xl font-bold text-primary-foreground md:text-4xl">
+          <h2 className="text-3xl font-bold text-secondary-foreground md:text-4xl">
             Ready to elevate your employee benefits?
           </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-primary-foreground/80">
-            Let's start with a no-obligation benefits review. We'll benchmark
+          <p className="mx-auto mt-4 max-w-2xl text-secondary-foreground/80">
+            Start with a no-obligation benefits review. We'll benchmark
             your current plan, identify savings, and show you what's possible.
           </p>
           <div className="mt-10 flex flex-wrap justify-center gap-4">
-            <Button size="lg" variant="secondary" className="gap-2 h-14 px-10 text-base" asChild>
-              <a href="tel:978-465-0121"><Phone className="h-5 w-5" /> Call Us Today</a>
-            </Button>
-            <Button size="lg" variant="secondary" className="gap-2 h-14 px-10 text-base" asChild>
-              <a href="#contact">Request a Proposal</a>
+            <QuoteDialog
+              trigger={
+                <Button size="lg" className="gap-2 h-14 px-10 text-base bg-white text-secondary hover:bg-white/90">
+                  Request a Free Quote
+                </Button>
+              }
+            />
+            <Button size="lg" className="gap-2 h-14 px-10 text-base border-2 border-white bg-transparent text-white hover:bg-white/10" asChild>
+              <a href="tel:978-465-0121"><Phone className="h-5 w-5" /> (978) 465-0121</a>
             </Button>
           </div>
         </div>
       </section>
 
       {/* Contact */}
-      <section id="contact" className="bg-card py-24">
+      <section id="contact" className="py-24">
         <div className="mx-auto max-w-7xl px-6">
           <div className="grid gap-12 lg:grid-cols-2">
             <div>
-              <Badge variant="outline" className="mb-4">Contact Us</Badge>
-              <h2 className="text-3xl font-bold text-foreground md:text-4xl">
+              <h2 className="text-2xl font-bold text-foreground md:text-3xl">
                 Let's talk benefits
               </h2>
               <p className="mt-4 text-muted-foreground">
-                Whether you're shopping for a new plan or looking to optimize
-                what you have, our team is ready to help.
+                Whether you're shopping for a new plan or optimizing
+                what you have, we're ready to help.
               </p>
               <div className="mt-8 space-y-6">
                 <div className="flex items-center gap-4">
                   <img
                     src={salHeadshot}
                     alt="Steven A. Linteris"
-                    className="h-16 w-16 rounded-full border-2 border-primary/20 object-cover"
+                    className="h-14 w-14 rounded-full border-2 border-primary/20 object-cover"
                   />
                   <div>
-                    <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Contact</p>
-                    <p className="font-semibold text-foreground">Steven A. Linteris, Principal/Broker</p>
+                    <p className="font-semibold text-foreground">Steven A. Linteris</p>
+                    <p className="text-sm text-muted-foreground">Principal / Broker</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
@@ -558,51 +493,39 @@ const Index = () => {
                 <Form method="post" className="space-y-4">
                   <input type="hidden" name="intent" value="contact" />
                   <div className="grid gap-4 sm:grid-cols-2">
-                    <input
-                      name="firstName"
-                      placeholder="First name"
-                      required
-                      aria-label="First name"
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                    />
-                    <input
-                      name="lastName"
-                      placeholder="Last name"
-                      aria-label="Last name"
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    <div className="space-y-2">
+                      <Label htmlFor="c-first">First name</Label>
+                      <Input id="c-first" name="firstName" placeholder="First name" required />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="c-last">Last name</Label>
+                      <Input id="c-last" name="lastName" placeholder="Last name" />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="c-company">Company name</Label>
+                    <Input id="c-company" name="company" placeholder="Company name" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="c-email">Email address</Label>
+                    <Input id="c-email" name="email" type="email" placeholder="Email address" required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="c-phone">Phone number</Label>
+                    <Input id="c-phone" name="phone" type="tel" placeholder="Phone number" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="c-message">Message</Label>
+                    <Textarea
+                      id="c-message"
+                      name="message"
+                      placeholder="Tell us about your current benefits or what you're looking for..."
+                      rows={4}
                     />
                   </div>
-                  <input
-                    name="company"
-                    placeholder="Company name"
-                    aria-label="Company name"
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  />
-                  <input
-                    name="email"
-                    type="email"
-                    placeholder="Email address"
-                    required
-                    aria-label="Email address"
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  />
-                  <input
-                    name="phone"
-                    type="tel"
-                    placeholder="Phone number"
-                    aria-label="Phone number"
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  />
-                  <textarea
-                    name="message"
-                    placeholder="Tell us about your current benefits or what you're looking for..."
-                    rows={4}
-                    aria-label="Message"
-                    className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  />
 
                   {actionData?.success && actionData.intent === "contact" && (
-                    <p className="text-sm font-medium text-accent">
+                    <p className="text-sm font-medium text-secondary">
                       Thank you! We'll be in touch shortly.
                     </p>
                   )}
@@ -619,6 +542,23 @@ const Index = () => {
           </div>
         </div>
       </section>
+
+      {/* Floating CTA */}
+      <div
+        className={`fixed bottom-6 right-6 z-50 transition-all duration-300 ${
+          showFloatingCta
+            ? "translate-y-0 opacity-100"
+            : "translate-y-4 opacity-0 pointer-events-none"
+        }`}
+      >
+        <QuoteDialog
+          trigger={
+            <Button size="lg" className="rounded-full shadow-xl h-12 px-6 gap-2">
+              Get a Quote <ArrowRight className="h-4 w-4" />
+            </Button>
+          }
+        />
+      </div>
     </div>
   );
 };

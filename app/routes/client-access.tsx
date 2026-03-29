@@ -175,7 +175,7 @@ const ClientAccess = () => {
             icon={User}
             description="Employee Portal Includes"
             features={employeeFeatures}
-            accentColor="bg-accent/10 text-accent"
+            accentColor="bg-secondary/10 text-secondary"
           />
         </div>
       </div>

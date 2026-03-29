@@ -8,13 +8,13 @@ import {
   isRouteErrorResponse,
   useRouteError,
 } from "react-router";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import type { ReactNode } from "react";
 import { Toaster } from "~/components/ui/sonner";
 import { TooltipProvider } from "~/components/ui/tooltip";
 import { QuoteDialog } from "~/components/QuoteDialog";
 import { Button } from "~/components/ui/button";
-import { Upload, Menu, X } from "lucide-react";
+import { Upload, Menu, X, ChevronDown, Calculator, FileText } from "lucide-react";
 import fbsLogo from "~/assets/fbs-logo.gif";
 import stylesheet from "~/index.css?url";
 import type { LinksFunction } from "react-router";
@@ -26,23 +26,75 @@ export const links: LinksFunction = () => [
   { rel: "stylesheet", href: stylesheet },
 ];
 
+function ToolsDropdown() {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const handleClick = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [open]);
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className="flex items-center gap-1 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+      >
+        Client Tools
+        <ChevronDown className={`h-3.5 w-3.5 transition-transform ${open ? "rotate-180" : ""}`} />
+      </button>
+      {open && (
+        <div className="absolute right-0 top-full mt-2 w-56 rounded-lg border bg-card p-1.5 shadow-lg">
+          <Link
+            to="/deduction-calculator"
+            onClick={() => setOpen(false)}
+            className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm text-foreground transition-colors hover:bg-muted"
+          >
+            <Calculator className="h-4 w-4 text-secondary" />
+            Deduction Calculator
+          </Link>
+          <Link
+            to="/cobra-letter"
+            onClick={() => setOpen(false)}
+            className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm text-foreground transition-colors hover:bg-muted"
+          >
+            <FileText className="h-4 w-4 text-secondary" />
+            COBRA Letter
+          </Link>
+          <Link
+            to="/upload"
+            onClick={() => setOpen(false)}
+            className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm text-foreground transition-colors hover:bg-muted"
+          >
+            <Upload className="h-4 w-4 text-secondary" />
+            Upload Documents
+          </Link>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <nav className="sticky top-0 z-50 border-b bg-card/80 backdrop-blur-md" aria-label="Main navigation">
+    <nav className="sticky top-0 z-50 border-b bg-card" aria-label="Main navigation">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
         <Link to="/" className="flex items-center gap-3">
           <img src={fbsLogo} alt="Flexible Benefit Solutions Insurance Brokerage, Inc." className="h-16" />
         </Link>
         <div className="hidden items-center gap-8 md:flex">
           <a href="/#products" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">Products</a>
-          <a href="/#services" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">Services</a>
           <a href="/#why-us" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">Why Us</a>
           <a href="/#contact" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">Contact</a>
-          <Button size="sm" variant="outline" className="gap-2" asChild>
-            <Link to="/upload"><Upload className="h-4 w-4" /> Upload Documents</Link>
-          </Button>
+          <ToolsDropdown />
           <QuoteDialog trigger={<Button size="sm">Get a Quote</Button>} />
         </div>
         <button
@@ -59,12 +111,22 @@ function Navbar() {
         <div className="border-t bg-card px-6 py-4 md:hidden">
           <div className="flex flex-col gap-4">
             <a href="/#products" onClick={() => setMobileMenuOpen(false)} className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">Products</a>
-            <a href="/#services" onClick={() => setMobileMenuOpen(false)} className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">Services</a>
             <a href="/#why-us" onClick={() => setMobileMenuOpen(false)} className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">Why Us</a>
             <a href="/#contact" onClick={() => setMobileMenuOpen(false)} className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">Contact</a>
-            <Button size="sm" variant="outline" className="gap-2 w-fit" asChild>
-              <Link to="/upload" onClick={() => setMobileMenuOpen(false)}><Upload className="h-4 w-4" /> Upload Documents</Link>
-            </Button>
+            <div className="border-t pt-3">
+              <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Client Tools</p>
+              <div className="flex flex-col gap-2">
+                <Link to="/deduction-calculator" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
+                  <Calculator className="h-4 w-4 text-secondary" /> Deduction Calculator
+                </Link>
+                <Link to="/cobra-letter" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
+                  <FileText className="h-4 w-4 text-secondary" /> COBRA Letter
+                </Link>
+                <Link to="/upload" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
+                  <Upload className="h-4 w-4 text-secondary" /> Upload Documents
+                </Link>
+              </div>
+            </div>
             <div onClick={() => setMobileMenuOpen(false)}>
               <QuoteDialog trigger={<Button size="sm" className="w-fit">Get a Quote</Button>} />
             </div>
@@ -79,8 +141,41 @@ function Footer() {
   return (
     <footer className="border-t bg-primary py-12 text-primary-foreground">
       <div className="mx-auto max-w-7xl px-6">
-        <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
-          <p className="text-sm text-primary-foreground/80">
+        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+          <div>
+            <h3 className="text-sm font-semibold text-primary-foreground">Company</h3>
+            <ul className="mt-3 space-y-2 text-sm text-primary-foreground/70">
+              <li><a href="/#products" className="hover:text-primary-foreground transition-colors">Products</a></li>
+              <li><a href="/#why-us" className="hover:text-primary-foreground transition-colors">Why Us</a></li>
+              <li><a href="/#contact" className="hover:text-primary-foreground transition-colors">Contact</a></li>
+            </ul>
+          </div>
+          <div>
+            <h3 className="text-sm font-semibold text-primary-foreground">Client Tools</h3>
+            <ul className="mt-3 space-y-2 text-sm text-primary-foreground/70">
+              <li><Link to="/upload" className="hover:text-primary-foreground transition-colors">Document Upload</Link></li>
+              <li><Link to="/deduction-calculator" className="hover:text-primary-foreground transition-colors">Deduction Calculator</Link></li>
+              <li><Link to="/cobra-letter" className="hover:text-primary-foreground transition-colors">COBRA Letter</Link></li>
+              <li><Link to="/client-access" className="hover:text-primary-foreground transition-colors">Client Access</Link></li>
+            </ul>
+          </div>
+          <div>
+            <h3 className="text-sm font-semibold text-primary-foreground">Contact</h3>
+            <ul className="mt-3 space-y-2 text-sm text-primary-foreground/70">
+              <li><a href="tel:978-465-0121" className="hover:text-primary-foreground transition-colors">(978) 465-0121</a></li>
+              <li><a href="mailto:sal@fbsinsurance.com" className="hover:text-primary-foreground transition-colors">sal@fbsinsurance.com</a></li>
+              <li>61 Pleasant St, Newburyport MA</li>
+            </ul>
+          </div>
+          <div>
+            <h3 className="text-sm font-semibold text-primary-foreground">Partners</h3>
+            <ul className="mt-3 space-y-2 text-sm text-primary-foreground/70">
+              <li><Link to="/affiliate" className="hover:text-primary-foreground transition-colors">Affiliate Program</Link></li>
+            </ul>
+          </div>
+        </div>
+        <div className="mt-10 border-t border-primary-foreground/20 pt-6">
+          <p className="text-sm text-primary-foreground/60">
             © {new Date().getFullYear()} Flexible Benefit Solutions Insurance Brokerage, Inc. All rights reserved.
           </p>
         </div>
