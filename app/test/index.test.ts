@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
 import type { ActionFunctionArgs } from "react-router";
 import { action } from "../routes/_index";
+import { action as quoteAction } from "../routes/api.quote";
 
 // Hoist mock references so they're available inside vi.mock factory
 const mockSendEmail = vi.hoisted(() => vi.fn());
@@ -71,7 +72,6 @@ describe("action – quote intent", () => {
   it("sends email and returns success", async () => {
     mockSendEmail.mockResolvedValueOnce(undefined);
     const formData = new FormData();
-    formData.set("intent", "quote");
     formData.set("firstName", "Jane");
     formData.set("lastName", "Smith");
     formData.set("company", "Acme");
@@ -79,7 +79,7 @@ describe("action – quote intent", () => {
     formData.set("phone", "555-1234");
     formData.set("employees", "50");
     formData.set("message", "Need group benefits");
-    const result = await action(makeArgs(formData));
+    const result = await quoteAction(makeArgs(formData));
     expect(mockSendEmail).toHaveBeenCalledOnce();
     expect(result).toEqual({ success: true, intent: "quote" });
   });
@@ -87,27 +87,24 @@ describe("action – quote intent", () => {
   it("returns error when email fails", async () => {
     mockSendEmail.mockRejectedValueOnce(new Error("API down"));
     const formData = new FormData();
-    formData.set("intent", "quote");
     formData.set("firstName", "Jane");
     formData.set("email", "jane@acme.com");
-    const result = await action(makeArgs(formData));
+    const result = await quoteAction(makeArgs(formData));
     expect(result).toMatchObject({ success: false, intent: "quote" });
   });
 
   it("returns error when firstName is missing", async () => {
     const formData = new FormData();
-    formData.set("intent", "quote");
     formData.set("email", "jane@acme.com");
-    const result = await action(makeArgs(formData));
+    const result = await quoteAction(makeArgs(formData));
     expect(result).toMatchObject({ success: false, intent: "quote" });
     expect(mockSendEmail).not.toHaveBeenCalled();
   });
 
   it("returns error when email is missing", async () => {
     const formData = new FormData();
-    formData.set("intent", "quote");
     formData.set("firstName", "Jane");
-    const result = await action(makeArgs(formData));
+    const result = await quoteAction(makeArgs(formData));
     expect(result).toMatchObject({ success: false, intent: "quote" });
     expect(mockSendEmail).not.toHaveBeenCalled();
   });
