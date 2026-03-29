@@ -1,4 +1,6 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+import { Form, useActionData, useNavigation } from "react-router";
+import type { ActionFunctionArgs, MetaFunction } from "react-router";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Textarea } from "~/components/ui/textarea";
@@ -6,15 +8,67 @@ import { Label } from "~/components/ui/label";
 import { Card, CardContent } from "~/components/ui/card";
 import { Upload, FileText, X, Lock } from "lucide-react";
 import { toast } from "sonner";
-import { Link } from "react-router";
-import type { MetaFunction } from "react-router";
+import { uploadFile, getPresignedUrl } from "~/lib/spaces.server";
+import { sendEmail } from "~/lib/brevo.server";
 
 export const meta: MetaFunction = () => [{ title: "Secure Document Upload — FBS" }];
 
+export async function action({ request }: ActionFunctionArgs) {
+  const formData = await request.formData();
+
+  const firstName = String(formData.get("firstName") ?? "").trim();
+  const lastName = String(formData.get("lastName") ?? "").trim();
+  const company = String(formData.get("company") ?? "").trim();
+  const email = String(formData.get("email") ?? "").trim();
+  const message = String(formData.get("message") ?? "").trim();
+  const documents = formData.getAll("documents") as File[];
+
+  if (!firstName || !email) {
+    return { success: false, error: "Name and email are required." };
+  }
+  if (documents.length === 0 || documents.every((f) => f.size === 0)) {
+    return { success: false, error: "Please upload at least one document." };
+  }
+
+  // Upload each file to DO Spaces and collect presigned URLs
+  const uploadedLinks: string[] = [];
+  for (const file of documents) {
+    if (file.size === 0) continue;
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const key = await uploadFile({ buffer, fileName: file.name, mimeType: file.type || "application/octet-stream" });
+    const url = await getPresignedUrl(key);
+    uploadedLinks.push(`<li><a href="${url}">${file.name}</a> (link valid 7 days)</li>`);
+  }
+
+  await sendEmail({
+    subject: `Document upload from ${firstName} ${lastName} — ${company}`,
+    htmlContent: `
+      <h2>Secure Document Upload</h2>
+      <p><strong>Name:</strong> ${firstName} ${lastName}</p>
+      <p><strong>Company:</strong> ${company}</p>
+      <p><strong>Email:</strong> ${email}</p>
+      ${message ? `<p><strong>Message:</strong><br>${message}</p>` : ""}
+      <p><strong>Documents:</strong></p>
+      <ul>${uploadedLinks.join("")}</ul>
+    `,
+    replyTo: { email, name: `${firstName} ${lastName}` },
+  });
+
+  return { success: true };
+}
+
 const UploadDocuments = () => {
+  const actionData = useActionData<typeof action>();
+  const navigation = useNavigation();
+  const isSubmitting = navigation.state === "submitting";
+
   const [files, setFiles] = useState<File[]>([]);
-  const [submitting, setSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+
+  useEffect(() => {
+    if (actionData?.success) setFiles([]);
+  }, [actionData]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -34,25 +88,13 @@ const UploadDocuments = () => {
     setFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (files.length === 0) {
-      toast.error("Please upload at least one document.");
-      return;
+  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    // Sync the files state back to the file input before RR v7 reads the form
+    if (fileInputRef.current) {
+      const dt = new DataTransfer();
+      files.forEach((f) => dt.items.add(f));
+      fileInputRef.current.files = dt.files;
     }
-    setSubmitting(true);
-
-    // TODO: Connect backend here — send formData to your API / Supabase edge function
-    const formData = new FormData(e.currentTarget);
-    files.forEach((file) => formData.append("documents", file));
-
-    // Simulate network delay
-    await new Promise((r) => setTimeout(r, 1200));
-
-    toast.success("Documents submitted securely! We'll review them shortly.");
-    setFiles([]);
-    (e.target as HTMLFormElement).reset();
-    setSubmitting(false);
   };
 
   return (
@@ -73,7 +115,13 @@ const UploadDocuments = () => {
 
         <Card className="border-border/50">
           <CardContent className="p-6 sm:p-8">
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <Form
+              ref={formRef}
+              method="post"
+              encType="multipart/form-data"
+              className="space-y-6"
+              onSubmit={handleFormSubmit}
+            >
               {/* Contact Info */}
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
@@ -127,6 +175,7 @@ const UploadDocuments = () => {
                 <input
                   ref={fileInputRef}
                   type="file"
+                  name="documents"
                   multiple
                   accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.png,.jpg,.jpeg"
                   className="hidden"
@@ -160,19 +209,26 @@ const UploadDocuments = () => {
                 )}
               </div>
 
+              {actionData?.success && (
+                <p className="text-sm font-medium text-accent">
+                  Documents submitted securely! We'll review them shortly.
+                </p>
+              )}
+              {actionData?.error && (
+                <p className="text-sm font-medium text-destructive">{actionData.error}</p>
+              )}
+
               <p className="text-center text-sm font-semibold text-muted-foreground">
                 <Lock className="mr-1 inline h-4 w-4" />
                 Your documents are encrypted in transit and handled with strict confidentiality.
               </p>
 
-              <Button type="submit" className="w-full gap-2" size="lg" disabled={submitting}>
-                {submitting ? "Submitting…" : (
-                  <>
-                    <Lock className="h-4 w-4" /> Submit Documents Securely
-                  </>
+              <Button type="submit" className="w-full gap-2" size="lg" disabled={isSubmitting}>
+                {isSubmitting ? "Uploading…" : (
+                  <><Lock className="h-4 w-4" /> Submit Documents Securely</>
                 )}
               </Button>
-            </form>
+            </Form>
           </CardContent>
         </Card>
       </div>
