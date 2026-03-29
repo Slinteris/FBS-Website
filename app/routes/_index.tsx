@@ -534,6 +534,7 @@ const Index = () => {
                     <input
                       name="firstName"
                       placeholder="First name"
+                      required
                       className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     />
                     <input
@@ -551,6 +552,7 @@ const Index = () => {
                     name="email"
                     type="email"
                     placeholder="Email address"
+                    required
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   />
                   <input
@@ -571,7 +573,7 @@ const Index = () => {
                       Thank you! We'll be in touch shortly.
                     </p>
                   )}
-                  {actionData?.error && (
+                  {actionData?.intent === "contact" && actionData.error && (
                     <p className="text-sm font-medium text-destructive">{actionData.error}</p>
                   )}
 
