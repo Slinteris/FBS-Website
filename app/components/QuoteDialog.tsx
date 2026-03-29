@@ -134,10 +134,10 @@ export function QuoteDialog({ trigger }: QuoteDialogProps) {
           </div>
 
           {fetcher.data?.intent === "quote" && fetcher.data.success && (
-            <p className="text-sm text-green-600">Quote request sent! We'll be in touch shortly.</p>
+            <p className="text-sm text-green-600 dark:text-green-400">Quote request sent! We'll be in touch shortly.</p>
           )}
           {fetcher.data?.intent === "quote" && !fetcher.data.success && fetcher.data.error && (
-            <p className="text-sm text-red-600">{fetcher.data.error}</p>
+            <p className="text-sm text-destructive">{fetcher.data.error}</p>
           )}
 
           <Button type="submit" className="w-full" size="lg" disabled={isSubmitting}>

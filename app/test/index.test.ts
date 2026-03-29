@@ -1,4 +1,6 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, vi, afterEach } from "vitest";
+import type { ActionFunctionArgs } from "react-router";
+import { action } from "../routes/_index";
 
 // Hoist mock references so they're available inside vi.mock factory
 const mockSendEmail = vi.hoisted(() => vi.fn());
@@ -7,8 +9,13 @@ vi.mock("~/lib/brevo.server", () => ({
   sendEmail: mockSendEmail,
 }));
 
-// Import after mocks are set up
-const { action } = await import("../routes/_index");
+function makeArgs(formData: FormData): ActionFunctionArgs {
+  return {
+    request: new Request("http://localhost/", { method: "POST", body: formData }),
+    params: {},
+    context: {},
+  } as ActionFunctionArgs;
+}
 
 describe("action – contact intent", () => {
   afterEach(() => {
@@ -22,11 +29,7 @@ describe("action – contact intent", () => {
     formData.set("firstName", "John");
     formData.set("email", "john@example.com");
     formData.set("message", "Hello");
-    const result = await action({
-      request: new Request("http://localhost/", { method: "POST", body: formData }),
-      params: {},
-      context: {},
-    });
+    const result = await action(makeArgs(formData));
     expect(mockSendEmail).toHaveBeenCalledOnce();
     expect(result).toEqual({ success: true, intent: "contact" });
   });
@@ -37,11 +40,7 @@ describe("action – contact intent", () => {
     formData.set("intent", "contact");
     formData.set("firstName", "John");
     formData.set("email", "john@example.com");
-    const result = await action({
-      request: new Request("http://localhost/", { method: "POST", body: formData }),
-      params: {},
-      context: {},
-    });
+    const result = await action(makeArgs(formData));
     expect(result).toMatchObject({ success: false, intent: "contact" });
   });
 
@@ -49,11 +48,7 @@ describe("action – contact intent", () => {
     const formData = new FormData();
     formData.set("intent", "contact");
     formData.set("email", "john@example.com");
-    const result = await action({
-      request: new Request("http://localhost/", { method: "POST", body: formData }),
-      params: {},
-      context: {},
-    });
+    const result = await action(makeArgs(formData));
     expect(result).toMatchObject({ success: false, intent: "contact" });
     expect(mockSendEmail).not.toHaveBeenCalled();
   });
@@ -62,11 +57,7 @@ describe("action – contact intent", () => {
     const formData = new FormData();
     formData.set("intent", "contact");
     formData.set("firstName", "John");
-    const result = await action({
-      request: new Request("http://localhost/", { method: "POST", body: formData }),
-      params: {},
-      context: {},
-    });
+    const result = await action(makeArgs(formData));
     expect(result).toMatchObject({ success: false, intent: "contact" });
     expect(mockSendEmail).not.toHaveBeenCalled();
   });
@@ -88,11 +79,7 @@ describe("action – quote intent", () => {
     formData.set("phone", "555-1234");
     formData.set("employees", "50");
     formData.set("message", "Need group benefits");
-    const result = await action({
-      request: new Request("http://localhost/", { method: "POST", body: formData }),
-      params: {},
-      context: {},
-    });
+    const result = await action(makeArgs(formData));
     expect(mockSendEmail).toHaveBeenCalledOnce();
     expect(result).toEqual({ success: true, intent: "quote" });
   });
@@ -103,11 +90,7 @@ describe("action – quote intent", () => {
     formData.set("intent", "quote");
     formData.set("firstName", "Jane");
     formData.set("email", "jane@acme.com");
-    const result = await action({
-      request: new Request("http://localhost/", { method: "POST", body: formData }),
-      params: {},
-      context: {},
-    });
+    const result = await action(makeArgs(formData));
     expect(result).toMatchObject({ success: false, intent: "quote" });
   });
 
@@ -115,11 +98,7 @@ describe("action – quote intent", () => {
     const formData = new FormData();
     formData.set("intent", "quote");
     formData.set("email", "jane@acme.com");
-    const result = await action({
-      request: new Request("http://localhost/", { method: "POST", body: formData }),
-      params: {},
-      context: {},
-    });
+    const result = await action(makeArgs(formData));
     expect(result).toMatchObject({ success: false, intent: "quote" });
     expect(mockSendEmail).not.toHaveBeenCalled();
   });
@@ -128,11 +107,7 @@ describe("action – quote intent", () => {
     const formData = new FormData();
     formData.set("intent", "quote");
     formData.set("firstName", "Jane");
-    const result = await action({
-      request: new Request("http://localhost/", { method: "POST", body: formData }),
-      params: {},
-      context: {},
-    });
+    const result = await action(makeArgs(formData));
     expect(result).toMatchObject({ success: false, intent: "quote" });
     expect(mockSendEmail).not.toHaveBeenCalled();
   });
