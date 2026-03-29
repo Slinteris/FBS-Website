@@ -41,6 +41,7 @@ import salHeadshot from "~/assets/sal-headshot.jpeg";
 import { Form, Link, useActionData, useNavigation } from "react-router";
 import type { ActionFunctionArgs, MetaFunction } from "react-router";
 import { sendEmail } from "~/lib/brevo.server";
+import { escapeHtml } from "~/lib/utils";
 
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
@@ -60,14 +61,14 @@ export async function action({ request }: ActionFunctionArgs) {
 
     try {
       await sendEmail({
-        subject: `New consultation request from ${firstName} ${lastName}`,
+        subject: `New consultation request from ${escapeHtml(firstName)} ${escapeHtml(lastName)}`,
         htmlContent: `
         <h2>New Consultation Request</h2>
-        <p><strong>Name:</strong> ${firstName} ${lastName}</p>
-        <p><strong>Company:</strong> ${company || "—"}</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Phone:</strong> ${phone || "—"}</p>
-        <p><strong>Message:</strong><br>${message || "—"}</p>
+        <p><strong>Name:</strong> ${escapeHtml(firstName)} ${escapeHtml(lastName)}</p>
+        <p><strong>Company:</strong> ${company ? escapeHtml(company) : "—"}</p>
+        <p><strong>Email:</strong> ${escapeHtml(email)}</p>
+        <p><strong>Phone:</strong> ${phone ? escapeHtml(phone) : "—"}</p>
+        <p><strong>Message:</strong><br>${message ? escapeHtml(message) : "—"}</p>
       `,
         replyTo: { email, name: `${firstName} ${lastName}` },
       });
@@ -93,15 +94,15 @@ export async function action({ request }: ActionFunctionArgs) {
 
     try {
       await sendEmail({
-        subject: `Quote request from ${firstName} ${lastName} — ${company}`,
+        subject: `Quote request from ${escapeHtml(firstName)} ${escapeHtml(lastName)} — ${escapeHtml(company)}`,
         htmlContent: `
         <h2>Quote Request</h2>
-        <p><strong>Name:</strong> ${firstName} ${lastName}</p>
-        <p><strong>Company:</strong> ${company || "—"}</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Phone:</strong> ${phone || "—"}</p>
-        <p><strong>Employees:</strong> ${employees || "—"}</p>
-        <p><strong>Message:</strong><br>${message || "—"}</p>
+        <p><strong>Name:</strong> ${escapeHtml(firstName)} ${escapeHtml(lastName)}</p>
+        <p><strong>Company:</strong> ${company ? escapeHtml(company) : "—"}</p>
+        <p><strong>Email:</strong> ${escapeHtml(email)}</p>
+        <p><strong>Phone:</strong> ${phone ? escapeHtml(phone) : "—"}</p>
+        <p><strong>Employees:</strong> ${employees ? escapeHtml(employees) : "—"}</p>
+        <p><strong>Message:</strong><br>${message ? escapeHtml(message) : "—"}</p>
       `,
         replyTo: { email, name: `${firstName} ${lastName}` },
       });

@@ -10,17 +10,9 @@ import { Upload, FileText, X, Lock } from "lucide-react";
 import { toast } from "sonner";
 import { uploadFile, getPresignedUrl } from "~/lib/spaces.server";
 import { sendEmail } from "~/lib/brevo.server";
+import { escapeHtml } from "~/lib/utils";
 
 export const meta: MetaFunction = () => [{ title: "Secure Document Upload — FBS" }];
-
-function escapeHtml(s: string): string {
-  return s
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
-}
 
 const MAX_BYTES = 10 * 1024 * 1024; // 10 MB
 
