@@ -12,19 +12,24 @@ interface QuoteDialogProps {
   trigger: ReactNode;
 }
 
-export default function QuoteDialog({ trigger }: QuoteDialogProps) {
+export function QuoteDialog({ trigger }: QuoteDialogProps) {
   const [open, setOpen] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
   const fetcher = useFetcher<{ success: boolean; intent: string; error?: string }>();
 
   const isSubmitting = fetcher.state === "submitting";
 
-  // Close dialog on successful submission
+  // Close dialog on successful submission (with delay so user sees success message)
   useEffect(() => {
-    if (fetcher.data?.success && fetcher.data.intent === "quote") {
-      setOpen(false);
-      setFiles([]);
+    if (fetcher.data?.success && fetcher.data?.intent === "quote") {
+      const timer = setTimeout(() => {
+        setOpen(false);
+        formRef.current?.reset();
+        setFiles([]);
+      }, 1500);
+      return () => clearTimeout(timer);
     }
   }, [fetcher.data]);
 
@@ -62,7 +67,7 @@ export default function QuoteDialog({ trigger }: QuoteDialogProps) {
           </p>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="mt-4 space-y-4">
+        <form ref={formRef} onSubmit={handleSubmit} className="mt-4 space-y-4">
           <input type="hidden" name="intent" value="quote" />
 
           <div className="grid gap-4 sm:grid-cols-2">
@@ -128,8 +133,11 @@ export default function QuoteDialog({ trigger }: QuoteDialogProps) {
             )}
           </div>
 
-          {fetcher.data?.intent === "quote" && fetcher.data.error && (
-            <p className="text-sm font-medium text-destructive">{fetcher.data.error}</p>
+          {fetcher.data?.intent === "quote" && fetcher.data.success && (
+            <p className="text-sm text-green-600">Quote request sent! We'll be in touch shortly.</p>
+          )}
+          {fetcher.data?.intent === "quote" && !fetcher.data.success && fetcher.data.error && (
+            <p className="text-sm text-red-600">{fetcher.data.error}</p>
           )}
 
           <Button type="submit" className="w-full" size="lg" disabled={isSubmitting}>

@@ -58,9 +58,10 @@ export async function action({ request }: ActionFunctionArgs) {
       return { success: false, intent: "contact", error: "Name and email are required." };
     }
 
-    await sendEmail({
-      subject: `New consultation request from ${firstName} ${lastName}`,
-      htmlContent: `
+    try {
+      await sendEmail({
+        subject: `New consultation request from ${firstName} ${lastName}`,
+        htmlContent: `
         <h2>New Consultation Request</h2>
         <p><strong>Name:</strong> ${firstName} ${lastName}</p>
         <p><strong>Company:</strong> ${company || "—"}</p>
@@ -68,8 +69,11 @@ export async function action({ request }: ActionFunctionArgs) {
         <p><strong>Phone:</strong> ${phone || "—"}</p>
         <p><strong>Message:</strong><br>${message || "—"}</p>
       `,
-      replyTo: { email, name: `${firstName} ${lastName}` },
-    });
+        replyTo: { email, name: `${firstName} ${lastName}` },
+      });
+    } catch {
+      return { success: false, intent: "contact", error: "Failed to send. Please try again." };
+    }
 
     return { success: true, intent: "contact" };
   }
@@ -87,9 +91,10 @@ export async function action({ request }: ActionFunctionArgs) {
       return { success: false, intent: "quote", error: "Name and email are required." };
     }
 
-    await sendEmail({
-      subject: `Quote request from ${firstName} ${lastName} — ${company}`,
-      htmlContent: `
+    try {
+      await sendEmail({
+        subject: `Quote request from ${firstName} ${lastName} — ${company}`,
+        htmlContent: `
         <h2>Quote Request</h2>
         <p><strong>Name:</strong> ${firstName} ${lastName}</p>
         <p><strong>Company:</strong> ${company || "—"}</p>
@@ -98,8 +103,11 @@ export async function action({ request }: ActionFunctionArgs) {
         <p><strong>Employees:</strong> ${employees || "—"}</p>
         <p><strong>Message:</strong><br>${message || "—"}</p>
       `,
-      replyTo: { email, name: `${firstName} ${lastName}` },
-    });
+        replyTo: { email, name: `${firstName} ${lastName}` },
+      });
+    } catch {
+      return { success: false, intent: "quote", error: "Failed to send. Please try again." };
+    }
 
     return { success: true, intent: "quote" };
   }

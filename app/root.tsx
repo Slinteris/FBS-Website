@@ -13,7 +13,7 @@ import type { ReactNode } from "react";
 import { Toaster } from "~/components/ui/toaster";
 import { Toaster as Sonner } from "~/components/ui/sonner";
 import { TooltipProvider } from "~/components/ui/tooltip";
-import QuoteDialog from "~/components/QuoteDialog";
+import { QuoteDialog } from "~/components/QuoteDialog";
 import { Button } from "~/components/ui/button";
 import { Upload, Menu, X } from "lucide-react";
 import fbsLogo from "~/assets/fbs-logo.gif";
