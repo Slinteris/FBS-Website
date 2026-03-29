@@ -31,8 +31,10 @@ jobs:
           key: ${{ secrets.DO_SSH_KEY }}
           script: |
             set -e
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
             cd ~/fbs-website
             git pull origin main
-            npm ci
+            npm ci --omit=dev
             npm run build
-            pm2 reload ecosystem.config.cjs --env production
+            pm2 reload ecosystem.config.cjs --env production || pm2 start ecosystem.config.cjs

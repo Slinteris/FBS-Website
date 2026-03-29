@@ -1,0 +1,155 @@
+name: Provision Droplet
+
+on:
+  workflow_dispatch:
+
+jobs:
+  provision:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Provision server
+        uses: appleboy/ssh-action@7eaf76671a0d7eec5d98ee897acda4f968735a17 # v1.0.3
+        env:
+          REPO_URL: https://github.com/${{ github.repository }}.git
+        with:
+          host: ${{ secrets.DO_HOST }}
+          username: root
+          key: ${{ secrets.DO_SSH_KEY }}
+          envs: REPO_URL
+          command_timeout: 15m
+          script: |
+            set -e
+            DOMAIN="fbsinsurance.com"
+            CERTBOT_EMAIL="steven@fbsinsurance.com"
+
+            echo "=== 1/13 Swap file ==="
+            if [ ! -f /swapfile ]; then
+              fallocate -l 1G /swapfile
+              chmod 600 /swapfile
+              mkswap /swapfile
+              swapon /swapfile
+              grep -q swapfile /etc/fstab || echo '/swapfile none swap sw 0 0' >> /etc/fstab
+            fi
+
+            echo "=== 2/13 System packages ==="
+            apt-get update
+            apt-get install -y nginx certbot python3-certbot-nginx git ufw
+
+            echo "=== 3/13 Deploy user ==="
+            id -u deploy &>/dev/null || useradd -m -s /bin/bash deploy
+            mkdir -p /home/deploy/.ssh
+            cp /root/.ssh/authorized_keys /home/deploy/.ssh/authorized_keys
+            chown -R deploy:deploy /home/deploy/.ssh
+            chmod 700 /home/deploy/.ssh
+            chmod 600 /home/deploy/.ssh/authorized_keys
+
+            # Allow deploy user to reload nginx without password
+            cat > /etc/sudoers.d/deploy <<'SUDOERS'
+            deploy ALL=(ALL) NOPASSWD: /bin/systemctl reload nginx, /bin/systemctl restart nginx, /usr/sbin/nginx
+            SUDOERS
+            chmod 440 /etc/sudoers.d/deploy
+
+            echo "=== 4/13 Node.js 24 via nvm ==="
+            su - deploy -c '
+              export NVM_DIR="$HOME/.nvm"
+              if [ ! -s "$NVM_DIR/nvm.sh" ]; then
+                curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+              fi
+              . "$NVM_DIR/nvm.sh"
+              nvm install 24
+              nvm alias default 24
+              npm install -g pm2
+            '
+
+            echo "=== 5/13 PM2 startup ==="
+            NODE_BIN=$(find /home/deploy/.nvm/versions/node -maxdepth 2 -name bin -type d | head -1)
+            env PATH=$PATH:$NODE_BIN pm2 startup systemd -u deploy --hp /home/deploy --service-name pm2-deploy || true
+            systemctl enable pm2-deploy || true
+
+            echo "=== 6/13 Clone repo and build ==="
+            su - deploy -c "
+              . \$HOME/.nvm/nvm.sh
+              if [ ! -d ~/fbs-website ]; then
+                git clone $REPO_URL ~/fbs-website
+              fi
+              cd ~/fbs-website
+              git pull origin main
+              npm ci --omit=dev
+              npm run build
+            "
+
+            echo "=== 7/13 Create .env ==="
+            if [ ! -f /home/deploy/fbs-website/.env ]; then
+              cp /home/deploy/fbs-website/.env.example /home/deploy/fbs-website/.env
+              chown deploy:deploy /home/deploy/fbs-website/.env
+              chmod 600 /home/deploy/fbs-website/.env
+              echo ">>> .env created from .env.example — fill in secrets via SSH <<<"
+            fi
+
+            echo "=== 8/13 Start PM2 ==="
+            su - deploy -c '
+              . $HOME/.nvm/nvm.sh
+              cd ~/fbs-website
+              pm2 start ecosystem.config.cjs || pm2 reload ecosystem.config.cjs
+              pm2 save
+            '
+
+            echo "=== 9/13 Nginx — temporary HTTP config for certbot ==="
+            mkdir -p /var/www/html
+            cat > /etc/nginx/sites-available/fbs-website <<'NGINX_TMP'
+            server {
+                listen 80;
+                server_name fbsinsurance.com www.fbsinsurance.com flexiblebenefitsolutions.com www.flexiblebenefitsolutions.com;
+
+                location /.well-known/acme-challenge/ {
+                    root /var/www/html;
+                }
+
+                location / {
+                    proxy_pass http://127.0.0.1:3000;
+                    proxy_set_header Host $host;
+                    proxy_set_header X-Real-IP $remote_addr;
+                }
+            }
+            NGINX_TMP
+
+            ln -sf /etc/nginx/sites-available/fbs-website /etc/nginx/sites-enabled/fbs-website
+            rm -f /etc/nginx/sites-enabled/default
+            nginx -t && systemctl reload nginx
+
+            echo "=== 10/13 SSL certificate ==="
+            if [ ! -d /etc/letsencrypt/live/fbsinsurance.com ]; then
+              certbot certonly --webroot -w /var/www/html \
+                -d fbsinsurance.com -d www.fbsinsurance.com \
+                -d flexiblebenefitsolutions.com -d www.flexiblebenefitsolutions.com \
+                --non-interactive --agree-tos -m "$CERTBOT_EMAIL"
+            fi
+
+            echo "=== 11/13 Deploy full Nginx config ==="
+            cp /home/deploy/fbs-website/infra/nginx.conf /etc/nginx/sites-available/fbs-website
+            nginx -t && systemctl reload nginx
+
+            echo "=== 12/13 Certbot renewal hook ==="
+            mkdir -p /etc/letsencrypt/renewal-hooks/deploy
+            cat > /etc/letsencrypt/renewal-hooks/deploy/reload-nginx.sh <<'HOOK'
+            #!/bin/bash
+            systemctl reload nginx
+            HOOK
+            chmod +x /etc/letsencrypt/renewal-hooks/deploy/reload-nginx.sh
+
+            echo "=== 13/13 Firewall ==="
+            ufw allow OpenSSH
+            ufw allow 'Nginx Full'
+            ufw --force enable
+
+            echo ""
+            echo "=== Provisioning complete ==="
+            echo "NEXT STEPS:"
+            echo "  1. ssh deploy@$(curl -s ifconfig.me)"
+            echo "  2. cd ~/fbs-website && nano .env"
+            echo "  3. Fill in BREVO_API_KEY, DO_SPACES_*, NOTIFICATION_EMAIL"
+            echo "  4. pm2 reload ecosystem.config.cjs"
+            echo "  5. Verify: curl https://fbsinsurance.com && curl https://flexiblebenefitsolutions.com"
