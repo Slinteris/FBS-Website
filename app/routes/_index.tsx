@@ -87,7 +87,6 @@ const reasons = [
   "Employee enrollment & communication support",
   "Annual benchmarking & renewal strategy",
   "Claims advocacy & resolution",
-  "Ongoing Administration Support",
 ];
 
 const Index = () => {
@@ -129,10 +128,10 @@ const Index = () => {
 
           <div className="mt-6 flex flex-col items-end gap-3 md:mt-0 md:absolute md:bottom-8 md:right-6">
             <Button variant="secondary" size="lg" className="gap-2 shadow-lg" asChild>
-              <a href="/deduction-calculator">
+              <Link to="/deduction-calculator">
                 <TrendingUp className="h-4 w-4" />
                 Benefit Payroll Deduction Calculator
-              </a>
+              </Link>
             </Button>
             <CobraLetterDialog
               trigger={
