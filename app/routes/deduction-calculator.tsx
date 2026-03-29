@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~
 import { Calculator, ArrowLeft, User, Mail, Printer } from "lucide-react";
 import { Link } from "react-router";
 import type { MetaFunction } from "react-router";
+import fbsLogo from "~/assets/fbs-logo.gif";
 
 export const meta: MetaFunction = () => [{ title: "Deduction Calculator — FBS" }];
 

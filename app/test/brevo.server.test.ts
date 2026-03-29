@@ -1,12 +1,11 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
-const sendTransacEmail = vi.fn().mockResolvedValue({ response: { statusCode: 201 } });
-const setApiKey = vi.fn();
+const sendTransacEmail = vi.fn().mockResolvedValue({});
 
 vi.mock("@getbrevo/brevo", () => ({
-  TransactionalEmailsApi: vi.fn().mockImplementation(() => ({ setApiKey, sendTransacEmail })),
-  TransactionalEmailsApiApiKeys: { apiKey: "apiKey" },
-  SendSmtpEmail: vi.fn().mockImplementation((data: object) => ({ ...data })),
+  BrevoClient: vi.fn().mockImplementation(() => ({
+    transactionalEmails: { sendTransacEmail },
+  })),
 }));
 
 import { sendEmail } from "~/lib/brevo.server";
@@ -16,7 +15,7 @@ describe("sendEmail", () => {
     process.env.BREVO_API_KEY = "test-key";
     process.env.NOTIFICATION_EMAIL = "team@fbsinsurance.com";
     vi.clearAllMocks();
-    sendTransacEmail.mockResolvedValue({ response: { statusCode: 201 } });
+    sendTransacEmail.mockResolvedValue({});
   });
 
   afterEach(() => {
