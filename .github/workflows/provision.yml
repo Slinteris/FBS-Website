@@ -126,7 +126,7 @@ jobs:
               -d fbsinsurance.com -d www.fbsinsurance.com \
               -d flexiblebenefitsolutions.com -d www.flexiblebenefitsolutions.com \
               --non-interactive --agree-tos -m "$CERTBOT_EMAIL" \
-              --keep-existing
+              --keep
 
             echo "=== 10b/13 Certbot recommended TLS settings ==="
             if [ ! -f /etc/letsencrypt/options-ssl-nginx.conf ]; then
