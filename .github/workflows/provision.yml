@@ -122,11 +122,20 @@ jobs:
             nginx -t && systemctl reload nginx
 
             echo "=== 10/13 SSL certificate ==="
-            if [ ! -d /etc/letsencrypt/live/fbsinsurance.com ]; then
-              certbot certonly --webroot -w /var/www/html \
-                -d fbsinsurance.com -d www.fbsinsurance.com \
-                -d flexiblebenefitsolutions.com -d www.flexiblebenefitsolutions.com \
-                --non-interactive --agree-tos -m "$CERTBOT_EMAIL"
+            certbot certonly --webroot -w /var/www/html \
+              -d fbsinsurance.com -d www.fbsinsurance.com \
+              -d flexiblebenefitsolutions.com -d www.flexiblebenefitsolutions.com \
+              --non-interactive --agree-tos -m "$CERTBOT_EMAIL" \
+              --keep-existing
+
+            echo "=== 10b/13 Certbot recommended TLS settings ==="
+            if [ ! -f /etc/letsencrypt/options-ssl-nginx.conf ]; then
+              curl -sS https://raw.githubusercontent.com/certbot/certbot/master/certbot-nginx/certbot_nginx/_internal/tls_configs/options-ssl-nginx.conf \
+                -o /etc/letsencrypt/options-ssl-nginx.conf
+            fi
+            if [ ! -f /etc/letsencrypt/ssl-dhparams.pem ]; then
+              curl -sS https://raw.githubusercontent.com/certbot/certbot/master/certbot/certbot/ssl-dhparams.pem \
+                -o /etc/letsencrypt/ssl-dhparams.pem
             fi
 
             echo "=== 11/13 Deploy full Nginx config ==="
