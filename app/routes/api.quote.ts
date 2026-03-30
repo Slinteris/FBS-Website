@@ -1,9 +1,16 @@
 import type { ActionFunctionArgs } from "react-router";
 import { sendEmail } from "~/lib/brevo.server";
+import { verifyRecaptcha } from "~/lib/recaptcha.server";
 import { escapeHtml } from "~/lib/utils";
 
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
+
+  const recaptchaToken = String(formData.get("recaptcha_token") ?? "");
+  const recaptcha = await verifyRecaptcha(recaptchaToken, "quote");
+  if (!recaptcha.pass) {
+    return { success: false, intent: "quote", error: recaptcha.error ?? "Verification failed." };
+  }
 
   const firstName = String(formData.get("firstName") ?? "").trim();
   const lastName = String(formData.get("lastName") ?? "").trim();

@@ -10,6 +10,7 @@ import {
 } from "react-router";
 import { useState, useEffect, useRef } from "react";
 import type { ReactNode } from "react";
+import { GoogleReCaptchaProvider } from "react-google-recaptcha-v3";
 import { Toaster } from "~/components/ui/sonner";
 import { TooltipProvider } from "~/components/ui/tooltip";
 import { QuoteDialog } from "~/components/QuoteDialog";
@@ -178,6 +179,12 @@ function Footer() {
           <p className="text-sm text-primary-foreground/60">
             © {new Date().getFullYear()} Flexible Benefit Solutions Insurance Brokerage, Inc. All rights reserved.
           </p>
+          <p className="mt-2 text-xs text-primary-foreground/40">
+            Protected by reCAPTCHA.{" "}
+            <a href="https://policies.google.com/privacy" className="underline hover:text-primary-foreground/60">Privacy</a>
+            {" · "}
+            <a href="https://policies.google.com/terms" className="underline hover:text-primary-foreground/60">Terms</a>
+          </p>
         </div>
       </div>
     </footer>
@@ -202,8 +209,10 @@ export function Layout({ children }: { children: ReactNode }) {
   );
 }
 
+const recaptchaSiteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
+
 export default function App() {
-  return (
+  const content = (
     <TooltipProvider>
       <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground">
         Skip to content
@@ -215,6 +224,14 @@ export default function App() {
       </main>
       <Footer />
     </TooltipProvider>
+  );
+
+  if (!recaptchaSiteKey) return content;
+
+  return (
+    <GoogleReCaptchaProvider reCaptchaKey={recaptchaSiteKey}>
+      {content}
+    </GoogleReCaptchaProvider>
   );
 }
 

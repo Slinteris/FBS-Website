@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { useFetcher } from "react-router";
+import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "~/components/ui/dialog";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
@@ -17,6 +18,7 @@ export function QuoteDialog({ trigger }: QuoteDialogProps) {
   const fetcher = useFetcher<{ success: boolean; intent: string; error?: string }>();
 
   const isSubmitting = fetcher.state === "submitting";
+  const { executeRecaptcha } = useGoogleReCaptcha();
 
   // Close dialog on successful submission (with delay so user sees success message)
   useEffect(() => {
@@ -29,9 +31,13 @@ export function QuoteDialog({ trigger }: QuoteDialogProps) {
     }
   }, [fetcher.data]);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
+    if (executeRecaptcha) {
+      const token = await executeRecaptcha("quote");
+      formData.set("recaptcha_token", token);
+    }
     fetcher.submit(formData, {
       method: "post",
       action: "/api/quote",

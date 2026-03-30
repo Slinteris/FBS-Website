@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
-import { Form, useActionData, useNavigation } from "react-router";
+import { Form, useActionData, useNavigation, useSubmit } from "react-router";
+import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 import type { ActionFunctionArgs, MetaFunction } from "react-router";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
@@ -10,6 +11,7 @@ import { Upload, FileText, X, Lock } from "lucide-react";
 import { toast } from "sonner";
 import { uploadFile, getPresignedUrl } from "~/lib/spaces.server";
 import { sendEmail } from "~/lib/brevo.server";
+import { verifyRecaptcha } from "~/lib/recaptcha.server";
 import { escapeHtml } from "~/lib/utils";
 
 export const meta: MetaFunction = () => [
@@ -22,6 +24,12 @@ const MAX_BYTES = 10 * 1024 * 1024; // 10 MB
 
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
+
+  const recaptchaToken = String(formData.get("recaptcha_token") ?? "");
+  const recaptcha = await verifyRecaptcha(recaptchaToken, "upload");
+  if (!recaptcha.pass) {
+    return { success: false, error: recaptcha.error ?? "Verification failed." };
+  }
 
   const firstName = String(formData.get("firstName") ?? "").trim();
   const lastName = String(formData.get("lastName") ?? "").trim();
@@ -78,6 +86,8 @@ const UploadDocuments = () => {
 
   const [files, setFiles] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const submit = useSubmit();
+  const { executeRecaptcha } = useGoogleReCaptcha();
 
   useEffect(() => {
     if (actionData?.success) setFiles([]);
@@ -101,13 +111,20 @@ const UploadDocuments = () => {
     setFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    // Sync the files state back to the file input before RR v7 reads the form
+  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    // Sync the files state back to the file input
     if (fileInputRef.current) {
       const dt = new DataTransfer();
       files.forEach((f) => dt.items.add(f));
       fileInputRef.current.files = dt.files;
     }
+    const formData = new FormData(e.currentTarget);
+    if (executeRecaptcha) {
+      const token = await executeRecaptcha("upload");
+      formData.set("recaptcha_token", token);
+    }
+    submit(formData, { method: "post", encType: "multipart/form-data" });
   };
 
   return (

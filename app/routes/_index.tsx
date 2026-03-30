@@ -41,9 +41,11 @@ import sunlifeLogo from "~/assets/sunlife-logo.png";
 
 import heroBg from "~/assets/hero-bg.jpg";
 import salHeadshot from "~/assets/sal-headshot.jpeg";
-import { Form, Link, useActionData, useNavigation } from "react-router";
+import { Form, Link, useActionData, useNavigation, useSubmit } from "react-router";
+import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 import type { ActionFunctionArgs, MetaFunction } from "react-router";
 import { sendEmail } from "~/lib/brevo.server";
+import { verifyRecaptcha } from "~/lib/recaptcha.server";
 import { escapeHtml } from "~/lib/utils";
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -51,6 +53,12 @@ export async function action({ request }: ActionFunctionArgs) {
   const intent = formData.get("intent");
 
   if (intent === "contact") {
+    const recaptchaToken = String(formData.get("recaptcha_token") ?? "");
+    const recaptcha = await verifyRecaptcha(recaptchaToken, "contact");
+    if (!recaptcha.pass) {
+      return { success: false, intent: "contact", error: recaptcha.error ?? "Verification failed." };
+    }
+
     const firstName = String(formData.get("firstName") ?? "").trim();
     const lastName = String(formData.get("lastName") ?? "").trim();
     const company = String(formData.get("company") ?? "").trim();
@@ -172,6 +180,18 @@ const Index = () => {
   const navigation = useNavigation();
   const isSubmitting = navigation.state === "submitting" &&
     navigation.formData?.get("intent") === "contact";
+  const submit = useSubmit();
+  const { executeRecaptcha } = useGoogleReCaptcha();
+
+  const handleContactSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    if (executeRecaptcha) {
+      const token = await executeRecaptcha("contact");
+      formData.set("recaptcha_token", token);
+    }
+    submit(formData, { method: "post" });
+  };
 
   const [showFloatingCta, setShowFloatingCta] = useState(false);
 
@@ -490,7 +510,7 @@ const Index = () => {
                 <h3 className="mb-6 text-xl font-bold font-body text-foreground">
                   Request a Free Consultation
                 </h3>
-                <Form method="post" className="space-y-4">
+                <Form method="post" className="space-y-4" onSubmit={handleContactSubmit}>
                   <input type="hidden" name="intent" value="contact" />
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-2">
