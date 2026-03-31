@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~
 import { Calculator, ArrowLeft, User, Mail, Printer } from "lucide-react";
 import { Link } from "react-router";
 import type { MetaFunction } from "react-router";
-import fbsLogo from "~/assets/fbs-logo.gif";
+import fbsLogo from "~/assets/logo.png";
 
 export const meta: MetaFunction = () => [
   { title: "Deduction Calculator — FBS" },
@@ -240,7 +240,7 @@ export default function DeductionCalculator() {
                 </Select>
               </div>
               <div className="flex flex-col items-center gap-1">
-                <img src={fbsLogo} alt="Flexible Benefit Solutions logo" className="h-12 object-contain" />
+                <img src={fbsLogo} alt="Flexible Benefit Solutions logo" className="h-16 object-contain" />
                 <a href="mailto:info@flexiblebenefit.com">
                   <Button variant="outline" size="sm" className="gap-1 text-xs">
                     <Mail className="h-3 w-3" /> Need Help? Contact Us

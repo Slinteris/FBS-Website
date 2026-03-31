@@ -16,7 +16,7 @@ import { TooltipProvider } from "~/components/ui/tooltip";
 import { QuoteDialog } from "~/components/QuoteDialog";
 import { Button } from "~/components/ui/button";
 import { Upload, Menu, X, ChevronDown, Calculator, FileText } from "lucide-react";
-import fbsLogo from "~/assets/fbs-logo.gif";
+import fbsLogo from "~/assets/logo.png";
 import stylesheet from "~/index.css?url";
 import type { LinksFunction } from "react-router";
 
