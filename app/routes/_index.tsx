@@ -378,8 +378,8 @@ const Index = () => {
               </p>
               {/* TODO: Replace with Sal's actual bio */}
               <p className="mt-6 leading-relaxed text-muted-foreground">
-                With over 25 years in employee benefits, Sal founded Flexible Benefit
-                Solutions on a simple principle: every business deserves a broker who
+                With over 25 years in employee benefits, Flexible Benefit
+                Solutions was founded on a simple principle: every business deserves a broker who
                 puts their interests first. As an independent brokerage, we're not tied
                 to any single carrier — which means you get unbiased advice and access
                 to the best plans on the market.
