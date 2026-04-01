@@ -199,6 +199,15 @@ export function Layout({ children }: { children: ReactNode }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
+        <script
+          async
+          src="https://www.googletagmanager.com/gtag/js?id=G-54TD6HMH5R"
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-54TD6HMH5R');`,
+          }}
+        />
       </head>
       <body>
         {children}
